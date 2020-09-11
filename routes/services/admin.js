@@ -20,20 +20,19 @@
 
 const config = require('../../config');
 const { get } = require('./fetch_common'); 
-const utility = require('../utility');
+  const utility = require('../utility');
 
 module.exports = {
   getProjectCompanies,
-  getProjectUsers,
-  getProjectRoles
-}
+  getProjectUsers 
+ }
 
 
 //export BIM 360 project users , recursive function
 async function getProjectUsers(projectId, limit, offset, allUsers) {
   try {
     const endpoint = `https://developer.api.autodesk.com/bim360/admin/v1/projects/${projectId}/users?limit=${limit}&offset=${offset}`
-    const headers = config.httpHeaders(config.token_3legged)
+    const headers = config.httpHeaders(config.token_2legged)
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
@@ -44,9 +43,9 @@ async function getProjectUsers(projectId, limit, offset, allUsers) {
     } else {
 
        let promiseArr = allUsers.map(async (u, index) => {
-          var eachUser = {}
-          eachUser.name = u.name 
-        return eachUser;
+          //var eachUser = {}
+          //eachUser.name = u.name 
+          return u;
       });
 
       return Promise.all(promiseArr).then((resultsArray) => {
@@ -58,7 +57,42 @@ async function getProjectUsers(projectId, limit, offset, allUsers) {
       })
     }
   } catch (e) {
-    console.error(`exportProjectsUsers ${projectName} failed: ${e}`)
+    console.error(`exportProjectsUsers failed: ${e}`)
+    return []
+  }
+}
+
+
+//export BIM 360 project users , recursive function
+async function getProjectCompanies(accountId,projectId, limit, offset, allCompanies) {
+  try {
+    const endpoint = `https://developer.api.autodesk.com/hq/v1/accounts/${accountId}/projects/${projectId}//companies?limit=${limit}&offset=${offset}`
+    const headers = config.httpHeaders(config.token_2legged)
+    const response = await get(endpoint, headers);
+
+    if (response.results && response.results.length > 0) {
+      console.log(`getting project users ${offset} to ${offset + limit}`)
+      allCompanies = allCompanies.concat(response.results);
+      await utility.delay(utility.DELAY_MILISECOND)  
+      return getProjectCompanies(accountId,projectId, limit, allCompanies.length, allCompanies);
+    } else {
+
+       let promiseArr = allCompanies.map(async (c, index) => {
+          //var eachCom = {}
+          //eachCom.name = u.name 
+          return c;
+      });
+
+      return Promise.all(promiseArr).then((resultsArray) => {
+        resultsArray = utility.flatDeep(resultsArray,Infinity)
+        return resultsArray;
+      }).catch(function (err) { 
+        console.log(`exception when Promise.all sorting out companies: ${err}`);
+        return []
+      })
+    }
+  } catch (e) {
+    console.error(`getProjectCompanies failed: ${e}`)
     return []
   }
 }

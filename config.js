@@ -32,6 +32,7 @@ module.exports = {
         // Required scope for the client-side viewer
         public: ['viewables:read']
     }, 
+    limit:20,
     token_2legged:'',
     token_3legged:'',  
     ForgeBaseUrl:'https://developer.api.autodesk.com',

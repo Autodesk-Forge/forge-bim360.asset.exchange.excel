@@ -28,6 +28,7 @@ const config = require('../../config');
 const { OAuth } = require('../services/oauth');
 const asset_service = require('../services/asset'); 
 const admin_service = require('../services/admin'); 
+const utility = require('../utility');
 
  
 router.use(async (req, res, next) => {
@@ -39,9 +40,10 @@ router.use(async (req, res, next) => {
   } 
   req.oauth_client = oauth.getClient();
   req.oauth_token = await oauth.getInternalToken();  
-  const token_2legged = await oauth.get2LeggedClient().authenticate().access_token
+  var twoleggedoauth = oauth.get2LeggedClient()
+  var twoleggedres = await twoleggedoauth.authenticate()
   config.token_3legged = req.oauth_token.access_token
-  config.token_2legged = token_2legged
+  config.token_2legged = twoleggedres.access_token
 
   next();   
 });
@@ -53,9 +55,11 @@ var Defs ={
   allProjectUsers:null
 }
 
-router.get('/asset/all/:projectId', async (req, res, next) => {
+router.get('/asset/all/:accountId/:projectId', async (req, res, next) => {
 
   try {  
+    const accountId = req.params['accountId']  
+
     const projectId = req.params['projectId']  
     var allAssets = []
     allAssets = await asset_service.getAllAssets(projectId,null,allAssets) 
@@ -66,22 +70,65 @@ router.get('/asset/all/:projectId', async (req, res, next) => {
     var allCustomAttdefs= [] 
     allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId,null,allCustomAttdefs) 
     var allProjectUsers= [] 
-    allProjectUsers = await admin_service.getProjectUsers(projectId,null,allProjectUsers) 
+    allProjectUsers = await admin_service.getProjectUsers(projectId,config.limit,0,allProjectUsers) 
+    var allProjectCompanies= [] 
+    allProjectCompanies = await admin_service.getProjectCompanies(accountId,projectId,config.limit,0,allProjectCompanies) 
+    
     
     Defs.allCustomAttdefs = allCustomAttdefs
     Defs.allCategories = allCategories
     Defs.allStatus = allStatus
+    Defs.allProjectUsers = allProjectUsers
+    Defs.allProjectCompanies = allProjectCompanies
 
     //sorting out with 
+    let promiseArr = allAssets.map(async (a, index) => {
+      
+      var find = Defs.allProjectUsers.find(i=>i.autodeskId == a.createdBy)
+      a.createdBy =  find?find.name:'<invalid>'
+      find = Defs.allProjectUsers.find(i=>i.autodeskId == a.updatedBy)
+      a.updatedBy =  find?find.name:'<invalid>'
+      find = Defs.allCategories.find(i=>i.id == a.categoryId)
+      a.category =  find?find.name:'<invalid>'
+      find = Defs.allCategories.find(i=>i.id == a.categoryId)
+      a.category =  find?find.name:'<invalid>'
+      find = Defs.allStatus.find(i=>i.id == a.statusId)
+      a.status =  find?find.label:'<invalid>'
+
+      //const calist = await sortCustomAtt(a.customAttributes)
+      var calist = {}
+      for(const ca in a.customAttributes){
+        find = Defs.allCustomAttdefs.find(i=>i.name == ca)
+        calist[ca]={
+          displayName:find?find.displayName:'<none>',
+          value:a.customAttributes[ca]
+        } 
+      }
+      a.calist = calist
+      
+      return a;
+   });
+
+  return Promise.all(promiseArr).then((resultsArray) => {
+    resultsArray = utility.flatDeep(resultsArray,Infinity)
+    res.json(resultsArray);
+  }).catch(function (err) { 
+    console.log(`exception when Promise.all sorting out companies: ${err}`);
+    res.json([])
+  })
 
 
-    res.send(allAssets)  
    } catch(e) {
       // here goes out error handler
       console.log('allAssets failed: '+ e.message)
       res.status(500).end()
   }   
 }); 
+
+
+async function sortCustomAtt(customAttributes){
+ 
+}
 
 router.get('/asset/categories/:projectId', async (req, res, next) => {
 
