@@ -1,16 +1,27 @@
 
 const fs = require('fs');
 const excelJS = require('exceljs');
+const columnDefs = require('./columnDefs');
 
 module.exports = { 
     _export:_export
 };
 
-async function _export(exportName,subName,columnDef,data){ 
+//each element of the array will export one sheet in the same Excel file
+async function _export(exportName,dataArray){ 
 
     const workbook = new excelJS.Workbook();
-    const worksheet = workbook.addWorksheet(`${exportName}-${subName}`)
     workbook.creator = 'bim360-asset-export'; 
+
+    dataArray.forEach(data => {
+
+        const dataType = data.dataType
+        const fixColumnsDef = columnDefs[dataType]
+        
+    });
+
+
+    const worksheet = workbook.addWorksheet(`${exportName}`)
     
     worksheet.columns = columnDef.map(col => {
         return { key: col.id, header: col.columnTitle, width: col.columnWidth };
@@ -28,6 +39,8 @@ async function _export(exportName,subName,columnDef,data){
         }
         worksheet.addRow(row);
     } 
+
+    //now dump custom attributes.
                 
     const buffer = await workbook.xlsx.writeBuffer();
     fs.writeFile(`./Exported_Data/BIM360-${exportName}-${subName}.xlsx`, buffer, "binary",err => {

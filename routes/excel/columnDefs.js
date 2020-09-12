@@ -1,16 +1,32 @@
 
 const assetColumns = [
-   { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
-   { id: 'name', propertyName: 'name', columnTitle: 'name', columnWidth: 16, locked: false },
-   { id: 'start_date', propertyName: 'start_date', columnTitle: 'start_date', columnWidth: 16, locked: false },
-   { id: 'end_date', propertyName: 'end_date', columnTitle: 'Eend_date', columnWidth: 16, locked: true },
-   { id: 'project_type', propertyName: 'project_type', columnTitle: 'Pproject_type', columnWidth: 16, locked: false },
-   { id: 'value', propertyName: 'value', columnTitle: 'value', columnWidth: 16, locked: false },
-   { id: 'currency', propertyName: 'currency', columnTitle: 'currency', columnWidth: 16, locked: false },
-   { id: 'city', propertyName: 'city', columnTitle: 'city', columnWidth: 16, locked: false },
-   { id: 'country', propertyName: 'country', columnTitle: 'country', columnWidth: 16, locked: true },
-   { id: 'language', propertyName: 'language', columnTitle: 'language', columnWidth: 32, locked: true },
-   { id: 'construction_type', propertyName: 'construction_type', columnTitle: 'construction_type', columnWidth: 8, locked: true }
+   { id: 'clientAssetId', propertyName: 'clientAssetId', columnTitle: 'clientAssetId', columnWidth: 8, locked: true },
+   { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 2, locked: false },
+   { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
+   { id: 'isActive', propertyName: 'isActive', columnTitle: 'isActive', columnWidth: 4, locked: false },
+   { id: 'barcode', propertyName: 'barcode', columnTitle: 'barcode', columnWidth: 4, locked: false },
+   { id: 'serialNumber', propertyName: 'serialNumber', columnTitle: 'serialNumber', columnWidth: 4, locked: false },
+   { id: 'installationDate', propertyName: 'installationDate', columnTitle: 'installationDate', columnWidth: 4, locked: false },
+   { id: 'installedBy', propertyName: 'installedBy', columnTitle: 'installedBy', columnWidth: 4, locked: false },
+   { id: 'warrantyStartDate', propertyName: 'warrantyStartDate', columnTitle: 'warrantyStartDate', columnWidth: 4, locked: false },
+   { id: 'warrantyEndDate', propertyName: 'warrantyEndDate', columnTitle: 'warrantyEndDate', columnWidth: 4, locked: false },
+   { id: 'expectedLifeYears', propertyName: 'expectedLifeYears', columnTitle: 'expectedLifeYears', columnWidth: 4, locked: false },
+   { id: 'manufacturer', propertyName: 'manufacturer', columnTitle: 'manufacturer', columnWidth: 4, locked: false },
+
+   //sorted columns with readable string
+   { id: 'createdBy', propertyName: 'createdBy', columnTitle: 'createdBy', columnWidth: 4, locked: true },
+   { id: 'createdAt', propertyName: 'createdAt', columnTitle: 'createdAt', columnWidth: 4, locked: false },
+   { id: 'category', propertyName: 'category', columnTitle: 'category', columnWidth: 4, locked: false },
+   { id: 'status', propertyName: 'status', columnTitle: 'status', columnWidth: 2, locked: false },
+   { id: 'company', propertyName: 'company', columnTitle: 'company', columnWidth: 4, locked: false },
+   //issue,checklist,attachment list. put them together as string because Excel does not support embeded array
+   { id: 'issues', propertyName: 'issues', columnTitle: 'issues', columnWidth: 8, locked: false },
+   { id: 'checklists', propertyName: 'checklists', columnTitle: 'checklists', columnWidth: 8, locked: false },
+   { id: 'attachments', propertyName: 'attachments', columnTitle: 'attachments', columnWidth: 8, locked: false },
+   
+   //dynamic columns: custom attributes. make them flat view. depending on how many ca definitions
+   //......
+
 ];
 
 const categoryColumns = [
