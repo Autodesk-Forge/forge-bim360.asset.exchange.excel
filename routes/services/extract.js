@@ -9,16 +9,18 @@ const utility = require('../utility');
 
 var Defs = {
   allCustomAttdefs: null,
-  allStatus: null,
+  allStatusSets: null,
+  allStatuses:null,
   allCategories: null,
   allProjectUsers: null
+
 }
 
 async function exportAssets(accountId, projectId) {
   var allAssets = []
   allAssets = await asset_service.getAllAssets(projectId, null, allAssets)
-  var allStatus = []
-  allStatus = await asset_service.getAllStatuses(projectId, null, allStatus)
+  var allStatusSets = []
+  allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
   var allCategories = []
   allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
   var allCustomAttdefs = []
@@ -31,11 +33,55 @@ async function exportAssets(accountId, projectId) {
 
   Defs.allCustomAttdefs = allCustomAttdefs
   Defs.allCategories = allCategories
-  Defs.allStatus = allStatus
+  Defs.allStatusSets = allStatusSets
   Defs.allProjectUsers = allProjectUsers
   Defs.allProjectCompanies = allProjectCompanies
 
-  //sorting out with 
+
+  //sorting out with customized data 
+
+  Defs.allCategories.forEach(async ct => {  
+    var find = Defs.allProjectUsers.find(i => i.autodeskId == ct.createdBy)
+    ct.createdBy = find ? find.name : ct.createdBy
+  });
+
+  Defs.allCustomAttdefs.forEach(async cadef => {  
+    var find = Defs.allProjectUsers.find(i => i.autodeskId == cadef.createdBy)
+    cadef.createdBy = find ? find.name : cadef.createdBy
+    switch(cadef.dataType){
+      case 'text':
+        //do nothing 
+        cadef.enumValues = '<none>' 
+        break;
+      case 'numeric':
+         //do nothing
+         cadef.enumValues = '<none>' 
+        break;
+      case 'date':
+        //do nothing 
+        cadef.enumValues = '<none>'
+        break;
+      case 'select':
+        //do nothing 
+        break;
+      case 'multi_select':
+        //do nothing  
+        break;
+    }
+  });
+
+  Defs.allStatuses = []
+  Defs.allStatusSets.forEach(async set => { 
+    const setName = set.name
+    const statuses = set.values 
+    statuses.forEach(async st=>{
+      var find = Defs.allProjectUsers.find(i => i.autodeskId == st.createdBy)
+      st.createdBy = find ? find.name : st.createdBy
+      st.set = setName
+      Defs.allStatuses.push(st)
+    }) 
+  }); 
+
   let promiseArr = allAssets.map(async (a, index) => {
 
     const assetId = a.id //GUID for relationship 
@@ -47,9 +93,11 @@ async function exportAssets(accountId, projectId) {
     a.category = find ? find.name : '<invalid>'
     find = Defs.allCategories.find(i => i.id == a.categoryId)
     a.category = find ? find.name : '<invalid>'
-    find = Defs.allStatus.find(i => i.id == a.statusId)
+
+    find = Defs.allStatusSets.find(i => i.values.find(j=>j.id == a.statusId)!=null)
     a.status = find ? find.label : '<invalid>'
-    find = Defs.allStatus.find(i => i.id == a.companyId)
+    
+    find = Defs.allProjectCompanies.find(i => i.id == a.companyId)
     a.company = find ? find.name : '<invalid>'
 
     //const calist = await sortCustomAtt(a.customAttributes)
@@ -113,7 +161,7 @@ async function exportAssets(accountId, projectId) {
     resultsArray = utility.flatDeep(resultsArray, Infinity)
     return resultsArray;
   }).catch(function (err) {
-    console.log(`exception when Promise.all sorting out companies: ${err}`);
+    console.log(`exception when Promise.all sorting out assets: ${err}`);
     return []
   })
 }

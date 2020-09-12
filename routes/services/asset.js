@@ -118,31 +118,31 @@ async function getAllCustomAttdefs(projectId, nextUrl, allCustomAttdefs) {
 }
 
 
-async function getAllStatuses(projectId, nextUrl, allStatuses) {
+async function getAllStatusSets(projectId, nextUrl, allStatusSets) {
   try {
     //limit and offset have no effect on GET:Catrgories, no either cursorState and nextUrl -- bug?
 
     //const endpoint = nextUrl?nextUrl:str.format.format()`${config.bim360Asset.get_categories}`,projectId)
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/status-step-sets`
     const headers = config.httpHeaders(config.token_3legged)
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
       console.log(`getting assets ${projectId} status`)
-      allStatuses = allStatuses.concat(response.results);
+      allStatusSets = allStatusSets.concat(response.results);
       if(response.pagination.nextUrl!=null){
          //placeholder for nextUrl...
          await utility.delay(utility.DELAY_MILISECOND)   
-         return getAllStatuses(projectId, response.pagination.nextUrl, allStatuses);
+         return getAllStatusSets(projectId, response.pagination.nextUrl, allStatusSets);
       }
-      else{
-        return allStatuses 
+      else{ 
+        return allStatusSets 
       }
     } else {
        return []
     }
   } catch (e) {
-    console.error(`getAllStatuses ${projectId} failed: ${e}`)
+    console.error(`allStatusSets ${projectId} failed: ${e}`)
     return []
   }
 }
@@ -152,5 +152,5 @@ module.exports = {
   getAllAssets,
   getAllCategories,
   getAllCustomAttdefs,
-  getAllStatuses
+  getAllStatusSets
 }
