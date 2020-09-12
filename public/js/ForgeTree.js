@@ -25,9 +25,7 @@ $(document).ready(function () {
       $('#autodeskSignOutButton').show();
       $('#autodeskSigninButton').hide();
 
-      $('#refreshSourceHubs').show();
-      
-
+      $('#refreshSourceHubs').show(); 
 
       // prepare sign out
       $('#autodeskSignOutButton').click(function () {
@@ -128,13 +126,12 @@ function prepareUserHubsTree() {
         const projectId = herf.split('/')[8] 
         const accountId_without_b = accountId.split('b.')[1]
         const projectId_without_b = projectId.split('b.')[1]
-        const asset_view = new AssetView()
-        const allCagories = await asset_view.getCategories(projectId_without_b)
+        //const allCagories = await asset_view.getCategories(projectId_without_b)
         const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
-        const allStatus = await asset_view.getStatus(projectId_without_b)
-        const allAssets= await asset_view.getAssets(projectId_without_b)
-
-        const xx = 0
+        //const allStatus = await asset_view.getStatus(projectId_without_b)
+        const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b)
+        const fixCols = await asset_view.initAssetTableFixComlumns();
+        await asset_view.refreshAssetTable('assetTable',allAssets,fixCols,allCustomAttdef)  
       })(data.node.id)
       
       

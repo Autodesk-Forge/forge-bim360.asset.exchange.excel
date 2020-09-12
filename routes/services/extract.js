@@ -115,7 +115,7 @@ async function exportAssets(accountId, projectId) {
     //custom attributes name must be unique, so do not worry duplicated name
     for (const ca in a.customAttributes) {
       find = Defs.allCustomAttdefs.find(i => i.name == ca)
-      a[find.displayName] = find?a.customAttributes[ca]:''
+      a[ca] = find?a.customAttributes[ca]:''
     } 
 
     //how find the relationships of the asset 

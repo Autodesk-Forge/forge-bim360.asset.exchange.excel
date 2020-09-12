@@ -29,7 +29,7 @@ async function _export(exportName, dataArray) {
             for (var i in dataArray['customAttributes']) {
                 const oneDef = dataArray['customAttributes'][i]
                 columnDef.push(
-                    { id: `${oneDef.displayName}`, propertyName: `${oneDef.displayName}`, columnTitle: `${oneDef.displayName}`, columnWidth: 8, locked: false },
+                    { id: `${oneDef.name}`, propertyName: `${oneDef.name}`, columnTitle: `${oneDef.displayName}`, columnWidth: 8, locked: false },
                 )
             }
         }
