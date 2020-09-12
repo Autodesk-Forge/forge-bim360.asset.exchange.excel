@@ -13,41 +13,53 @@ async function _export(exportName,dataArray){
     const workbook = new excelJS.Workbook();
     workbook.creator = 'bim360-asset-export'; 
 
-    dataArray.forEach(data => {
+    const sheets = ['assets','categories','customAttributes','statuses']
 
-        const dataType = data.dataType
-        const fixColumnsDef = columnDefs[dataType]
+    sheets.forEach(s=>{
+
+        if(s == 'assets'){
+        const worksheet = workbook.addWorksheet(`${s}`)
+
+        const data = dataArray[s]
+        const fixColumnsDef = columnDefs[s+'Columns'] 
+        var columnDef = fixColumnsDef
         
-    });
+            //append custom attributes columns 
+            //
+            for(var i in dataArray['customAttributes']){
+                const oneDef = dataArray['customAttributes'][i]
+                columnDef.push(
+                    { id: `${oneDef.displayName}`, propertyName: `${oneDef.displayName}`, columnTitle: `${oneDef.displayName}`, columnWidth: 8, locked: false },
+                )
+            } 
+       
+        worksheet.columns = columnDef.map(col => {
+            return { key: col.id, header: col.columnTitle, width: col.columnWidth };
+        });
 
-
-    const worksheet = workbook.addWorksheet(`${exportName}`)
-    
-    worksheet.columns = columnDef.map(col => {
-        return { key: col.id, header: col.columnTitle, width: col.columnWidth };
-    });
-
-    for (const d of data) {
-        let row = {};
-        for (const column of columnDef) {
-            if (column.format) {
-                row[column.id] = column.format(d[column.propertyName]);
-            }  
-                else {
-                row[column.id] = d[column.propertyName];
+        for (const d of data) {
+            let row = {};
+            for (const column of columnDef) {
+                if (column.format) {
+                    row[column.id] = column.format(d[column.propertyName]);
+                }  
+                    else {
+                    row[column.id] = d[column.propertyName];
+                }
             }
-        }
-        worksheet.addRow(row);
+            worksheet.addRow(row);
+        }  
     } 
+    }) 
 
     //now dump custom attributes.
                 
     const buffer = await workbook.xlsx.writeBuffer();
-    fs.writeFile(`./Exported_Data/BIM360-${exportName}-${subName}.xlsx`, buffer, "binary",err => {
+    fs.writeFile(`./Exported_Data/BIM360-${exportName}.xlsx`, buffer, "binary",err => {
         if(err) {
         console.log(err);
         } else {
-         console.log(`./exportData/BIM360-${exportName}-${subName}.xlsx is saved`);
+         console.log(`./exportData/BIM360-${exportName}.xlsx is saved`);
         }
     }) 
 } 

@@ -84,7 +84,7 @@ async function getIssue(accountId,projectId,issueId) {
             type:'issue',
              title:response1.data.attributes.title,
              status:response1.data.attributes.status,
-             herf:`https://docs.b360.autodesk.com/projects/${projectId}/issues/${issueId}`
+             href:`https://docs.b360.autodesk.com/projects/${projectId}/issues/${issueId}`
            }
         }else{
           return null 
@@ -120,7 +120,7 @@ async function getChecklist(accountId,projectId,checklistId) {
             type:'checklist', 
             title:response1.data.attributes.title,
             status:response1.data.attributes.status.name,
-            herf:`https://docs.b360.autodesk.com/projects/${projectId}/checklists/${checklistId}`
+            href:`https://docs.b360.autodesk.com/projects/${projectId}/checklists/${checklistId}`
           }
         }else{
           return null

@@ -7,11 +7,6 @@ const relationship_service = require('../services/relationship');
 const utility = require('../utility');
 
 
-module.exports = {
-  exportAssets 
- }
-
-
 var Defs = {
   allCustomAttdefs: null,
   allStatus: null,
@@ -58,18 +53,24 @@ async function exportAssets(accountId, projectId) {
     a.company = find ? find.name : '<invalid>'
 
     //const calist = await sortCustomAtt(a.customAttributes)
-    var calist = {}
+    //better make it flat, fiendly for table view
+    // var calist = {}
+    // for (const ca in a.customAttributes) {
+    //   find = Defs.allCustomAttdefs.find(i => i.name == ca)
+    //   calist[ca] = {
+    //     displayName: find ? find.displayName : '<none>',
+    //     value: a.customAttributes[ca]
+    //   }
+    // }
+    // a.calist = calist
+
+    //custom attributes name must be unique, so do not worry duplicated name
     for (const ca in a.customAttributes) {
       find = Defs.allCustomAttdefs.find(i => i.name == ca)
-      calist[ca] = {
-        displayName: find ? find.displayName : '<none>',
-        value: a.customAttributes[ca]
-      }
-    }
-    a.calist = calist
+      a[find.displayName] = find?a.customAttributes[ca]:''
+    } 
 
-    //how find the relationships of the asset
-
+    //how find the relationships of the asset 
     await utility.delay(utility.DELAY_MILISECOND)
     var allWithEntities = []
     allWithEntities = await relationship_service.searchRelationships(projectId, assetId, 0, allWithEntities)
@@ -89,14 +90,17 @@ async function exportAssets(accountId, projectId) {
           eachEntity = checklistData 
       }
       if (with_entity.domain == 'autodesk-bim360-documentmanagement' && with_entity.type == 'documentlineage') {
-
+        eachEntity = {type:'attachment',name:'name',href:'href'}
       } 
       return eachEntity
     })
 
     return Promise.all(subPromiseArr).then((resultsArray) => {
       resultsArray = utility.flatDeep(resultsArray, Infinity)
-      a.allWithEntities = resultsArray
+    
+      a.issues = resultsArray.filter(i=>i.type == 'issue')
+      a.checklists = resultsArray.filter(i=>i.type == 'checklist')
+      a.attachments = resultsArray.filter(i=>i.type == 'attachment') 
       return a
     }).catch(function (err) {
       console.error(`exception when Promise.all sorting out allWithEntities: ${err}`);
@@ -113,3 +117,9 @@ async function exportAssets(accountId, projectId) {
     return []
   })
 }
+
+
+module.exports = {
+  exportAssets,
+  Defs
+ } 

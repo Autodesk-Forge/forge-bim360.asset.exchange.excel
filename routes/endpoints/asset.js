@@ -28,7 +28,8 @@ const config = require('../../config');
 const { OAuth } = require('../services/oauth');
 const asset_service = require('../services/asset');
 const extract = require('../services/extract');
- 
+const _excel = require('../excel/excel');
+
 router.use(async (req, res, next) => {
   const oauth = new OAuth(req.session);
   if (!oauth.isAuthorized()) {
@@ -53,7 +54,14 @@ router.get('/asset/all/:accountId/:projectId', async (req, res, next) => {
     const accountId = req.params['accountId'] 
     const projectId = req.params['projectId']
 
-    const allAssets = await extract.exportAssets(accountId,projectId)
+    const allAssets = await extract.exportAssets(accountId,projectId) 
+    const xx = await _excel._export('bim360-assets-report',{
+            assets:allAssets,
+            categories:extract.Defs.allCategories,
+            customAttributes:extract.Defs.allCustomAttdefs,
+            statuses: extract.Defs.allStatus
+        }
+      )
     res.json(allAssets) 
 
   } catch (e) {
