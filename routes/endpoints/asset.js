@@ -21,6 +21,8 @@
 
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');  
+const path = require('path');
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -48,14 +50,15 @@ router.use(async (req, res, next) => {
 });
 
 
-router.get('/asset/all/:accountId/:projectId', async (req, res, next) => {
+router.get('/asset/all/:accountId/:projectId/:projectName', async (req, res, next) => {
 
   try {
     const accountId = req.params['accountId'] 
-    const projectId = req.params['projectId']
+    const projectId = req.params['projectId'] 
+    const projectName = req.params['projectName']
 
     const allAssets = await extract.exportAssets(accountId,projectId) 
-    const xx = await _excel._export('bim360-assets-report',{
+    const xx = await _excel._export(`bim360-assets-report<${projectName}>`,{
             assets:allAssets,
             categories:extract.Defs.allCategories,
             customAttributes:extract.Defs.allCustomAttdefs,
@@ -111,5 +114,25 @@ router.get('/asset/status/:projectId', async (req, res, next) => {
     res.status(500).end()
   }
 });
+
+
+router.get('/asset/downloadExcel/:projectName', async (req, res) => {
+
+  var projectName = req.params['projectName']
+
+  projectName = `bim360-assets-report<${projectName}>.xlsx`
+ 
+  var file_full_csv_name = path.join(__dirname, 
+      '../../Exported_Data/' + projectName);   
+  if(fs.existsSync(file_full_csv_name)){ 
+      res.download(file_full_csv_name);  
+  }
+  else{
+      res.status(500).json({error:'no such excel file!'} );   
+  } 
+}); 
+
+ 
+
 
 module.exports = router

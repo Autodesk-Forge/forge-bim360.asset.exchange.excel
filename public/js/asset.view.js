@@ -162,11 +162,11 @@ class AssetView {
 
   
 
-  async getAssets(accountId,projectId) {
+  async getAssets(accountId,projectId,projectName) {
     var _this = this
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: `/api/forge/asset/all/${accountId}/${projectId}`,
+        url: `/api/forge/asset/all/${accountId}/${projectId}/${encodeURIComponent(projectName)}`,
         type: 'GET',
         success: (data) => { 
           resolve(data)

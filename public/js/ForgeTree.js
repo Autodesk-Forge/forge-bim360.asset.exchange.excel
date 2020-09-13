@@ -112,7 +112,8 @@ function prepareUserHubsTree() {
   }).on('select_node.jstree', function(evt, data){
     if (data != null && data.node != null && (data.node.type == 'bim360projects' )) {
       $('#labelProjectHref').text(data.node.id);
-      $('#labelCostContainer').text(data.node.original.cost_container);
+      $('#labelProjectName').text(data.node.text);
+      
 
       // create the cost table when project is selected.
       //if( costTable != null ){
@@ -120,16 +121,17 @@ function prepareUserHubsTree() {
       //  costTable = null;
      // }
       //costTable = new CostTable('#budgetsTable', data.node.original.cost_container, data.node.id, CostDataType.BUDGET);
-      (async (herf)=>{
+      (async (herf,projectName)=>{
 
         const accountId = herf.split('/')[6]
         const projectId = herf.split('/')[8] 
         const accountId_without_b = accountId.split('b.')[1]
         const projectId_without_b = projectId.split('b.')[1]
+
         const allCagories = await asset_view.getCategories(projectId_without_b)
         const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
         const allStatus = await asset_view.getStatus(projectId_without_b)
-        const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b)
+        const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
 
         const assetCols = await asset_view.initAssetTableFixComlumns();
         const categoryCols = await asset_view.initCagoryTableFixComlumns();
@@ -142,7 +144,7 @@ function prepareUserHubsTree() {
         await asset_view.refreshTable('statusTable',allStatus,statusCols)  
 
 
-      })(data.node.id)
+      })(data.node.id,data.node.text)
       
       
       

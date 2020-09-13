@@ -54,11 +54,11 @@ async function _export(exportName, dataArray) {
 //now dump custom attributes.
 
 const buffer = await workbook.xlsx.writeBuffer();
-fs.writeFile(`./Exported_Data/BIM360-${exportName}.xlsx`, buffer, "binary", err => {
+fs.writeFile(`./Exported_Data/${exportName}.xlsx`, buffer, "binary", err => {
     if (err) {
         console.log(err);
     } else {
-        console.log(`./exportData/BIM360-${exportName}.xlsx is saved`);
+        console.log(`./exportData/${exportName}.xlsx is saved`);
     }
 }) 
 }
