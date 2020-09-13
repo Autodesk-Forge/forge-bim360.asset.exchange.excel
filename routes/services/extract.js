@@ -167,7 +167,92 @@ async function exportAssets(accountId, projectId) {
 }
 
 
+
+async function exportCategory(projectId) {
+  
+
+  var allCategories = []
+  allCategories = await asset_service.getAllCategories(projectId, null, allCategories) 
+  var allProjectUsers = []
+  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+   
+  //sorting out with customized data  
+  allCategories.forEach(async ct => {  
+    var find = allProjectUsers.find(i => i.autodeskId == ct.createdBy)
+    ct.createdBy = find ? find.name : ct.createdBy
+  });  
+
+  return allCategories
+}
+
+
+
+async function exportCustomAttDef(projectId) {
+  
+  var allCustomAttdefs = []
+  allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+  var allProjectUsers = []
+  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+   
+
+  allCustomAttdefs.forEach(async cadef => {  
+    var find = allProjectUsers.find(i => i.autodeskId == cadef.createdBy)
+    cadef.createdBy = find ? find.name : cadef.createdBy
+    switch(cadef.dataType){
+      case 'text':
+        //do nothing 
+        cadef.enumValues = '<none>' 
+        break;
+      case 'numeric':
+         //do nothing
+         cadef.enumValues = '<none>' 
+        break;
+      case 'date':
+        //do nothing 
+        cadef.enumValues = '<none>'
+        break;
+      case 'select':
+        //do nothing 
+        break;
+      case 'multi_select':
+        //do nothing  
+        break;
+    }
+  });
+
+  return allCustomAttdefs
+}
+
+
+async function exportStatus(projectId) {
+  
+  var allStatusSets = []
+  allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
+  var allProjectUsers = []
+  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+   
+
+  
+  var allStatuses = []
+  allStatusSets.forEach(async set => { 
+    const setName = set.name
+    const statuses = set.values 
+    statuses.forEach(async st=>{
+      var find = allProjectUsers.find(i => i.autodeskId == st.createdBy)
+      st.createdBy = find ? find.name : st.createdBy
+      st.set = setName
+      allStatuses.push(st)
+    }) 
+  }); 
+
+  return allStatuses
+}
+
+
 module.exports = {
   exportAssets,
+  exportCategory,
+  exportCustomAttDef,
+  exportStatus,
   Defs
  } 

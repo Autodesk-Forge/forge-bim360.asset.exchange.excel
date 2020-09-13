@@ -75,8 +75,7 @@ router.get('/asset/categories/:projectId', async (req, res, next) => {
 
   try {
     const projectId = req.params['projectId']
-    var allCategories = []
-    allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
+    const allCategories = await  extract.exportCategory(projectId)  
     res.send(allCategories)
   } catch (e) {
     // here goes out error handler
@@ -89,8 +88,8 @@ router.get('/asset/custom_attdef/:projectId', async (req, res, next) => {
 
   try {
     const projectId = req.params['projectId']
-    var allCustomAttdefs = []
-    allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+    var allCustomAttdefs = await  extract.exportCustomAttDef(projectId)  
+
     res.send(allCustomAttdefs)
   } catch (e) {
     // here goes out error handler
@@ -104,22 +103,7 @@ router.get('/asset/status/:projectId', async (req, res, next) => {
 
   try {
     const projectId = req.params['projectId']
-    var allStatusSets = []
-    allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatuses)
-
-
-    var allStatuses = []
-    allStatusSets.forEach(async set => { 
-      const setName = set.name
-      const statuses = set.values 
-      statuses.forEach(async st=>{
-        var find = Defs.allProjectUsers.find(i => i.autodeskId == st.createdBy)
-        st.createdBy = find ? find.name : '<invalid>' 
-        st.set = setName
-        allStatuses.push(st)
-      }) 
-    }); 
-
+    var allStatuses = await  extract.exportStatus(projectId)   
     res.send(allStatuses)
   } catch (e) {
     // here goes out error handler

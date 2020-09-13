@@ -6,12 +6,29 @@ class AssetView {
     this._customAttDefTable = null
     this._statusTable = null 
   }
+  issueFormatter(value, row, index) {
+    var re = ``
+    value.forEach(async element => {
+      re +=  `<a href="${element.href}">${element.title}</a>|${element.status}\n`; 
+    });
+    return re
+  }
+  checklistFormatter(value, row, index) {
 
+    var re = ``
+    value.forEach(async element => {
+      re +=  `<a href="${element.href}">${element.title}</a>|${element.status}\n`; 
+    });
+    return re
+   }
+  attachmentFormatter(value, row, index) {
+    return ''
+  }
   async initAssetTableFixComlumns(){
     var cols = [
       { field: 'clientAssetId',title:"clientAssetId",align:'center'},
       { field: 'version',title:"version",align:'center'},
-      { field: 'description',title:"description",align:'center'},
+      { field: 'description',title:"description",align:'left'},
       { field: 'isActive',title:"isActive",align:'center'},
       { field: 'status',title:"status",align:'center'},
       { field: 'barcode',title:"barcode",align:'center'},
@@ -27,14 +44,59 @@ class AssetView {
       { field: 'category',title:"category",align:'center'},
       { field: 'status',title:"status",align:'center'},
       { field: 'company',title:"company",align:'center'},
-      { field: 'issues',title:"issues",align:'center'},
-      { field: 'checklists',title:"checklists",align:'center'},
+      { field: 'issues',title:"issues",align:'center',formatter:this.issueFormatter},
+      { field: 'checklists',title:"checklists",align:'center',formatter:this.checklistFormatter},
       { field: 'attachments',title:"attachments",align:'center'}  
     ]
     return cols
   }
 
-  async initAssetTable(domId,columns){
+
+  async initCagoryTableFixComlumns(){
+    var cols = [
+      { field: 'name',title:"name",align:'center'},
+      { field: 'description',title:"description",align:'left'},
+      { field: 'isActive',title:"isActive",align:'center'},
+      { field: 'subcategoryIds',title:"subcategoryIds",align:'center'},
+      { field: 'isRoot',title:"isRoot",align:'center'},
+      { field: 'isLeaf',title:"isLeaf",align:'center'}, 
+      { field: 'createdAt',title:"createdAt",align:'left'},
+      { field: 'createdBy',title:"createdBy",align:'center'} 
+    ]
+    return cols
+  }
+
+
+  async initCustomAttDefTableFixComlumns(){
+    var cols = [
+      { field: 'name',title:"name",align:'center'},
+      { field: 'displayName',title:"displayName",align:'left'},
+      { field: 'dataType',title:"dataType",align:'center'},
+      { field: 'isActive',title:"isActive",align:'center'},
+      { field: 'createdAt',title:"createdAt",align:'left'},
+      { field: 'defaultValue',title:"defaultValue",align:'center'},
+      { field: 'enumValues',title:"enumValues",align:'center'}, 
+      { field: 'createdBy',title:"createdBy",align:'center'} 
+    ]
+    return cols
+  }
+
+  async initStatusTableFixComlumns(){
+    var cols = [
+      { field: 'set',title:"set",align:'center'}, 
+      { field: 'label',title:"label",align:'center'},
+      { field: 'version',title:"version",align:'center'},
+      { field: 'color',title:"color",align:'center'},
+      { field: 'bucket',title:"bucket",align:'center'},
+      { field: 'description',title:"description",align:'left'},
+      { field: 'isActive',title:"isActive",align:'center'},
+      { field: 'createdAt',title:"createdAt",align:'left'}, 
+      { field: 'createdBy',title:"createdBy",align:'center'} 
+    ]
+    return cols
+  }
+
+  async initTable(domId,columns){
     $(`#${domId}`).bootstrapTable('destroy');
     
     $(`#${domId}`).bootstrapTable({
@@ -63,18 +125,22 @@ class AssetView {
     for (var i in customAttDefs) {
       const oneDef = customAttDefs[i]
       cols.push(
-        { id: `${oneDef.name}`,title:`${oneDef.displayName}`,orderable:false}  
+        { field: `${oneDef.name}`,title:`${oneDef.displayName}`,align:'left'}  
       )
     }   
     return cols
   }
 
-  async  refreshAssetTable(domId,allAssets,fixCols,customAttDefs) {
+  async  refreshTable(domId,data,fixCols,customAttDefs=null) {
     $(`#${domId}`).bootstrapTable('destroy');
 
-    fixCols = await this.appendColumsToAssetTable(fixCols,customAttDefs)
+    if(customAttDefs){
+      //this is for asset list
+      fixCols = await this.appendColumsToAssetTable(fixCols,customAttDefs)
+       
+    }
     $(`#${domId}`).bootstrapTable({
-      data: allAssets,
+      data: data,
       editable: false,
       clickToSelect: true,
       cache: false,
@@ -91,29 +157,10 @@ class AssetView {
       minimumCountColumns: 2,
       smartDisplay: true,
       columns: fixCols
-    });  }
-
-
-  async renderAssetTable(assets){
-    //render the table
-    // var rows =[]
-    // assets.forEach(async a=>{
-
-    //   var row={}
-    //   rows.push(row)
-
-    // })
-
-    // for (let index in assets) {
-    //   var eachItem = this._clashJsonObj.clashes[index];
-
-    //   var ins = this._clashInsJsonObj.instances.filter(
-    //     function (data) { return data.cid == eachItem.id }
-    //   ); 
-      
-    // }
-    this._assetTable.rows.add(assets).draw( false );  
+    });  
   }
+
+  
 
   async getAssets(accountId,projectId) {
     var _this = this

@@ -21,9 +21,14 @@ const asset_view = new AssetView()
 $(document).ready(function () {
    
   (async()=>{
-    const cols = await asset_view.initAssetTableFixComlumns();
-    asset_view.initAssetTable('assetTable',cols)
-
+    var cols = await asset_view.initAssetTableFixComlumns();
+    asset_view.initTable('assetTable',cols)
+    cols = await asset_view.initCagoryTableFixComlumns();
+    asset_view.initTable('categoryTable',cols)
+    cols = await asset_view.initCustomAttDefTableFixComlumns();
+    asset_view.initTable('customAttdefTable',cols)
+    cols = await asset_view.initStatusTableFixComlumns();
+    asset_view.initTable('statusTable',cols) 
 
   })()
 

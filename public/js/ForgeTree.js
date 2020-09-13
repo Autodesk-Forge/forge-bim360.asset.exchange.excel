@@ -126,12 +126,22 @@ function prepareUserHubsTree() {
         const projectId = herf.split('/')[8] 
         const accountId_without_b = accountId.split('b.')[1]
         const projectId_without_b = projectId.split('b.')[1]
-        //const allCagories = await asset_view.getCategories(projectId_without_b)
+        const allCagories = await asset_view.getCategories(projectId_without_b)
         const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
-        //const allStatus = await asset_view.getStatus(projectId_without_b)
+        const allStatus = await asset_view.getStatus(projectId_without_b)
         const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b)
-        const fixCols = await asset_view.initAssetTableFixComlumns();
-        await asset_view.refreshAssetTable('assetTable',allAssets,fixCols,allCustomAttdef)  
+
+        const assetCols = await asset_view.initAssetTableFixComlumns();
+        const categoryCols = await asset_view.initCagoryTableFixComlumns();
+        const customAttDefCols = await asset_view.initCustomAttDefTableFixComlumns();
+        const statusCols = await asset_view.initStatusTableFixComlumns();
+
+        await asset_view.refreshTable('assetTable',allAssets,assetCols,allCustomAttdef)  
+        await asset_view.refreshTable('categoryTable',allCagories,categoryCols)  
+        await asset_view.refreshTable('customAttdefTable',allCustomAttdef,customAttDefCols)  
+        await asset_view.refreshTable('statusTable',allStatus,statusCols)  
+
+
       })(data.node.id)
       
       
