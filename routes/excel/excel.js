@@ -87,7 +87,17 @@ async function _export(exportName, dataArray) {
 
 async function _import(projectId, buffer) {
 
+
+
     try {
+
+        var allStatusSets = []
+        allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
+        var allCategories = []
+        allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
+        var allCustomAttdefs = []
+        allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+
         let results = {
             assets: { total: 0, success: 0, fail: 0 },
             categories: { total: 0, success: 0, fail: 0 },
@@ -103,8 +113,75 @@ async function _import(projectId, buffer) {
         const customAttDefs_worksheet = workbook.getWorksheet('customAttDefs');
         const statuses_worksheet = workbook.getWorksheet('statuses');
 
-        //firstly, create/update definitions
+
+
+        //finally create/update assets
         var total = 0
+        assets_worksheet.eachRow(async (row, rowNumber) => {
+
+            if (rowNumber === 1) {
+                return; // Skip the header row
+            }
+
+            try {
+                const id = row.values[1]
+                total++
+
+                const cat = allCategories.find(i => i.name == row.values[2])
+                const st = allCategories.find(i => i.name == row.values[3])
+
+
+                const body = {
+                    clientAssetId: row.values[2],
+                    categoryId: cat ? cat.id : allCategories[0].id,
+                    statusId: st ? st.id : allStatusSets[0].id,
+                    description: row.values[5],
+                    barcode: row.values[6],
+                    serialNumber: row.values[7],
+                    specSection: row.values[8],
+                    purchaseOrder: row.values[9],
+                    purchaseDate: row.values[10],
+                    installedBy: row.values[11],
+                    installationDate: row.values[12],
+                    warrantyStartDate: row.values[13],
+                    warrantyEndDate: row.values[14],
+                    expectedLifeYears: row.values[15],
+                    manufacturer: row.values[16],
+                    model: row.values[17]
+                }
+                //skip some uneditable columns
+                var i= 0
+                allCustomAttdefs.forEach(async c => {
+                    body[c.name] = row.values[26+i]
+                    i++
+                }) 
+                
+                if (id && id != '') {
+
+                    const postRes = await asset_service.patchAsset(projectId, id, body)
+                    postRes ? results.assets.success++ : results.assets.fail++
+
+                } else {
+
+                    const body = {
+
+                    }
+                    const postRes = await asset_service.createAsset(projectId, body)
+                    postRes ? results.assets.success++ : results.assets.fail++
+
+                }
+            }
+            catch (err) {
+                console.error('Error when parsing spreadsheet row of assets', rowNumber);
+                results.assets.fail++
+            }
+
+        })
+
+        results.assets.total = total
+
+        //firstly, create/update definitions
+         total = 0
         categories_worksheet.eachRow(async (row, rowNumber) => {
             if (rowNumber === 1) {
                 return; // Skip the header row
@@ -112,38 +189,122 @@ async function _import(projectId, buffer) {
 
             try {
                 const id = row.values[1]
-                const body = {
-                    name: row.values[2],
-                    description: row.values[3],
-                    parentId: row.values[4]
-                }
-                if (id && id!='') {
+                total++
+                if (id && id != '') {
+                    const body = {
+                        name: row.values[2],
+                        description: row.values[3]
+                    }
+                    const postRes = await asset_service.patchCategory(projectId, id, body)
+                    postRes ? results.categories.success++ : results.categories.fail++
+
                 } else {
+                    const body = {
+                        name: row.values[2],
+                        description: row.values[3],
+                        parentId: row.values[4].toString()
+                    }
                     const postRes = await asset_service.createCategory(projectId, body)
-                    postRes?results.categories.success++:results.categories.fail++
+                    postRes ? results.categories.success++ : results.categories.fail++
                 }
 
             }
             catch (err) {
                 console.error('Error when parsing spreadsheet row of categories', rowNumber);
-
-                throw new Error(err);
+                results.categories.fail++
             }
         })
+        results.categories.total = total
+
+        total = 0
         customAttDefs_worksheet.eachRow(async (row, rowNumber) => {
+            if (rowNumber === 1) {
+                return; // Skip the header row
+            }
 
+            try {
+                const id = row.values[1]
+                total++
+                if (id && id != '') {
+                    const body = {
+                        displayName: row.values[3],
+                        description: row.values[4],
+                        defaultValue: row.values[6],
+                        enumValues: JSON.parse(row.values[7])
+                    }
+                    const postRes = await asset_service.patchCustomAttDef(projectId, id, body)
+                    postRes ? results.customAttDefs.success++ : results.customAttDefs.fail++
+
+                } else {
+                    const body = {
+                        displayName: row.values[3],
+                        description: row.values[4],
+                        dataType: row.values[5],
+                        defaultValue: row.values[6],
+                        enumValues: JSON.parse(row.values[7])
+                    }
+                    const postRes = await asset_service.createCustomAttDef(projectId, body)
+                    postRes ? results.customAttDefs.success++ : results.customAttDefs.fail++
+                }
+
+            }
+            catch (err) {
+                console.error('Error when parsing spreadsheet row of customAttDefs', rowNumber);
+                results.customAttDefs.fail++
+            }
 
         })
+        results.customAttDefs.total = total
+
+        total = 0
         statuses_worksheet.eachRow(async (row, rowNumber) => {
+            if (rowNumber === 1) {
+                return; // Skip the header row
+            }
 
+            try {
+                const id = row.values[1]
+                total++
+                if (id && id != '') {
+                    const body = {
+                        label: row.values[3],
+                        description: row.values[4],
+                        color: row.values[5]
+                    }
+                    const postRes = await asset_service.patchStatus(projectId, id, body)
+                    postRes ? results.statuses.success++ : results.statuses.fail++
+
+                } else {
+                    const findSet = allStatusSets.find(i => i.name == row.values[2])
+
+                    if (findSet) {
+                        const body = {
+                            statusStepSetId: findSet.id,
+                            label: row.values[3],
+                            description: row.values[4],
+                            color: row.values[5]
+                        }
+                        const postRes = await asset_service.createStatus(projectId, body)
+                        postRes ? results.statuses.success++ : results.statuses.fail++
+                    } else {
+                        results.statuses.fail++
+                    }
+                }
+            }
+            catch (err) {
+                console.error('Error when parsing spreadsheet row of statuses', rowNumber);
+                results.statuses.fail++
+            }
         })
+        results.statuses.total = total
 
-        //finally create/update assets
-        assets_worksheet.eachRow(async (row, rowNumber) => {
 
-        })
+
+        return results
+
     } catch (e) {
         console.error(`import excel exception ${e}`)
+        return { importJob: false }
     }
 
 }
