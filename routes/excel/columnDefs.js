@@ -27,6 +27,8 @@ const attachmentListFormat = (list) => {
  
 
 const assetsColumns = [
+  { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
+
    { id: 'clientAssetId', propertyName: 'clientAssetId', columnTitle: 'clientAssetId', columnWidth: 8, locked: true },
    { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 4, locked: false },
    { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
@@ -52,7 +54,7 @@ const assetsColumns = [
    { id: 'issues', propertyName: 'issues', columnTitle: 'issues', columnWidth: 8, locked: false,format: issueListFormat },
    { id: 'checklists', propertyName: 'checklists', columnTitle: 'checklists', columnWidth: 8, locked: false,format: checklistListFormat },
    { id: 'attachments', propertyName: 'attachments', columnTitle: 'attachments', columnWidth: 8, locked: false,format: attachmentListFormat },
-   
+
    //dynamic columns: custom attributes. make them flat view. depending on how many ca definitions
    //......
 
@@ -63,6 +65,7 @@ const categoriesColumns = [
    { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
    { id: 'name', propertyName: 'name', columnTitle: 'name', columnWidth: 8, locked: false },
    { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
+   { id: 'parentId', propertyName: 'parentId', columnTitle: 'parentId', columnWidth: 8, locked: false }, 
    { id: 'subcategoryIds', propertyName: 'subcategoryIds', columnTitle: 'subcategoryIds', columnWidth: 16, locked: false },
    { id: 'isRoot', propertyName: 'isRoot', columnTitle: 'isRoot', columnWidth: 6, locked: false },
    { id: 'isLeaf', propertyName: 'isLeaf', columnTitle: 'isLeaf', columnWidth: 6, locked: false },
@@ -74,7 +77,7 @@ const categoriesColumns = [
     
 ];
 
-const customAttributesColumns = [
+const customAttDefsColumns = [
    { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
    { id: 'name', propertyName: 'name', columnTitle: 'name', columnWidth: 8, locked: false },
    { id: 'displayName', propertyName: 'displayName', columnTitle: 'displayName', columnWidth: 6, locked: false },
@@ -113,6 +116,6 @@ const statusesColumns = [
 module.exports = {
     assetsColumns,
     categoriesColumns,
-    customAttributesColumns,
+    customAttDefsColumns,
     statusesColumns
 };

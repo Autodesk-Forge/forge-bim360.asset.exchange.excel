@@ -19,7 +19,7 @@
 'use strict';    
  
 const config = require('../../config');
-const { get } = require('./fetch_common'); 
+const { get,post,patch } = require('./fetch_common'); 
 const utility = require('../utility');
 const { stream } = require('exceljs');
 
@@ -147,10 +147,135 @@ async function getAllStatusSets(projectId, nextUrl, allStatusSets) {
   }
 }
 
+
+async function createCategory(projectId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`createCategory failed: ${e}`)
+    return false
+  }
+}
+
+async function createCustomAttDef(projectId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`createCustomAttDef failed: ${e}`)
+    return false
+  }
+}
+
+async function createStatus(projectId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`createStatus failed: ${e}`)
+    return false
+  }
+}
+async function createAsset(projectId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`createAssets failed: ${e}`)
+    return false
+  }
+}
+
+////PATCH
+async function patchCategory(projectId,categoryId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories/${categoryId}`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await patch(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`patchCategory failed: ${e}`)
+    return false
+  }
+}
+
+async function patchCustomAttDef(projectId,customAttDefId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes/${customAttDefId}`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`patchCustomAttDef failed: ${e}`)
+    return false
+  }
+}
+
+async function patchStatus(projectId,statusId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses/${statusId}`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`patchStatus failed: ${e}`)
+    return false
+  }
+}
+async function patchAsset(projectId,assetId,body) {
+  try {
+ 
+    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets/${assetId}`
+    const headers = config.httpHeaders(config.token_3legged) 
+    await utility.delay(utility.DELAY_MILISECOND)  
+    const response = await post(endpoint, headers,JSON.stringify(body)); 
+    return true 
+  } catch (e) {
+    console.error(`patchAsset failed: ${e}`)
+    return false
+  }
+}
+
 module.exports = {
   //getAssets,
   getAllAssets,
   getAllCategories,
   getAllCustomAttdefs,
-  getAllStatusSets
+  getAllStatusSets,
+
+  createAsset,
+  patchAsset,
+
+  createCategory,
+  patchCategory,
+
+  createCustomAttDef,
+  patchCustomAttDef,
+
+  createStatus,
+  patchStatus
+
 }

@@ -23,6 +23,8 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');  
 const path = require('path');
+const multer = require('multer')
+const upload = multer({ dest: './Excel_Uploads/' });
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -31,6 +33,7 @@ const { OAuth } = require('../services/oauth');
 const asset_service = require('../services/asset');
 const extract = require('../services/extract');
 const _excel = require('../excel/excel');
+const excel = require('../excel/excel');
 
 router.use(async (req, res, next) => {
   const oauth = new OAuth(req.session);
@@ -61,7 +64,7 @@ router.get('/asset/all/:accountId/:projectId/:projectName', async (req, res, nex
     const xx = await _excel._export(`bim360-assets-report<${projectName}>`,{
             assets:allAssets,
             categories:extract.Defs.allCategories,
-            customAttributes:extract.Defs.allCustomAttdefs,
+            customAttDefs:extract.Defs.allCustomAttdefs,
             statuses: extract.Defs.allStatuses
         }
       )
@@ -123,7 +126,7 @@ router.get('/asset/downloadExcel/:projectName', async (req, res) => {
   projectName = `bim360-assets-report<${projectName}>.xlsx`
  
   var file_full_csv_name = path.join(__dirname, 
-      '../../Exported_Data/' + projectName);   
+      '../../Excel_Exports/' + projectName);   
   if(fs.existsSync(file_full_csv_name)){ 
       res.download(file_full_csv_name);  
   }
@@ -131,6 +134,21 @@ router.get('/asset/downloadExcel/:projectName', async (req, res) => {
       res.status(500).json({error:'no such excel file!'} );   
   } 
 }); 
+
+
+
+// POST /api/issues/:issue_container/import
+router.post('/asset/importExcel/:projectId', upload.single('xlsx'), async function (req, res) {
+  const { projectId } = req.params;
+  const xlsx = fs.readFileSync(req.file.path);
+  try {
+
+      const results = await excel._import(projectId,xlsx)
+      res.json(results);
+  } catch (err) {
+      handleError(err, res);
+  }
+});
 
  
 

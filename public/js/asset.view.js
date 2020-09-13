@@ -57,6 +57,7 @@ class AssetView {
       { field: 'name',title:"name",align:'center'},
       { field: 'description',title:"description",align:'left'},
       { field: 'isActive',title:"isActive",align:'center'},
+      { field: 'parentId',title:"parentId",align:'center'}, 
       { field: 'subcategoryIds',title:"subcategoryIds",align:'center'},
       { field: 'isRoot',title:"isRoot",align:'center'},
       { field: 'isLeaf',title:"isLeaf",align:'center'}, 

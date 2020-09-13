@@ -113,35 +113,34 @@ function prepareUserHubsTree() {
     if (data != null && data.node != null && (data.node.type == 'bim360projects' )) {
       $('#labelProjectHref').text(data.node.id);
       $('#labelProjectName').text(data.node.text);
+
       
+       (async (herf,projectName)=>{
 
-      // create the cost table when project is selected.
-      //if( costTable != null ){
-      //  delete costTable;
-      //  costTable = null;
-     // }
-      //costTable = new CostTable('#budgetsTable', data.node.original.cost_container, data.node.id, CostDataType.BUDGET);
-      (async (herf,projectName)=>{
+        // $('.clsInProgress').show();
 
-        const accountId = herf.split('/')[6]
-        const projectId = herf.split('/')[8] 
-        const accountId_without_b = accountId.split('b.')[1]
+         const accountId = herf.split('/')[6]
+         const projectId = herf.split('/')[8] 
+         const accountId_without_b = accountId.split('b.')[1]
         const projectId_without_b = projectId.split('b.')[1]
+         $('#labelProjectId').text(projectId_without_b);
 
-        const allCagories = await asset_view.getCategories(projectId_without_b)
-        const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
-        const allStatus = await asset_view.getStatus(projectId_without_b)
-        const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
 
-        const assetCols = await asset_view.initAssetTableFixComlumns();
-        const categoryCols = await asset_view.initCagoryTableFixComlumns();
-        const customAttDefCols = await asset_view.initCustomAttDefTableFixComlumns();
-        const statusCols = await asset_view.initStatusTableFixComlumns();
+        // const allCagories = await asset_view.getCategories(projectId_without_b)
+        // const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
+        // const allStatus = await asset_view.getStatus(projectId_without_b)
+        // const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
 
-        await asset_view.refreshTable('assetTable',allAssets,assetCols,allCustomAttdef)  
-        await asset_view.refreshTable('categoryTable',allCagories,categoryCols)  
-        await asset_view.refreshTable('customAttdefTable',allCustomAttdef,customAttDefCols)  
-        await asset_view.refreshTable('statusTable',allStatus,statusCols)  
+        // const assetCols = await asset_view.initAssetTableFixComlumns();
+        // const categoryCols = await asset_view.initCagoryTableFixComlumns();
+        // const customAttDefCols = await asset_view.initCustomAttDefTableFixComlumns();
+        // const statusCols = await asset_view.initStatusTableFixComlumns();
+
+        // await asset_view.refreshTable('assetTable',allAssets,assetCols,allCustomAttdef)  
+        // await asset_view.refreshTable('categoryTable',allCagories,categoryCols)  
+        // await asset_view.refreshTable('customAttdefTable',allCustomAttdef,customAttDefCols)  
+        // await asset_view.refreshTable('statusTable',allStatus,statusCols)  
+        // $('.clsInProgress').hide();
 
 
       })(data.node.id,data.node.text)

@@ -16,8 +16,8 @@
 
   <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
   <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-  
-  
+    <script src="  https://cdnjs.cloudflare.com/ajax/libs/bootstrap-notify/0.2.0/js/bootstrap-notify.min.js"></script>
+
   <!-- this project files -->
   <link href="css/main.css" rel="stylesheet" />
   <script src="js/asset.view.js"></script> 
@@ -363,7 +363,12 @@
     <!-- hidden DOM -->
     <label hidden="hidden" id="labelProjectHref"></label>
     <label hidden="hidden" id="labelProjectName"></label>
+    <label hidden="hidden" id="labelProjectId"></label>
+
     <div id="loader_stats" style="display: none;"></div>
+    <form id="xlsx-upload" method='post' enctype="multipart/form-data">
+            <input id="hidden-upload-file" type="file" name="xlsx" style="visibility:hidden" />
+    </form>
     <!-- end hidden DOM -->
     </body>
 
