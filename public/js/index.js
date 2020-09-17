@@ -17,22 +17,67 @@
 /////////////////////////////////////////////////////////////////////
 
 const asset_view = new AssetView()
+ 
 
 $(document).ready(function () {
-   
-  (async()=>{
-    var cols = await asset_view.initAssetTableFixComlumns();
-    asset_view.initTable('assetTable',cols)
-    cols = await asset_view.initCagoryTableFixComlumns();
-    asset_view.initTable('categoryTable',cols)
-    cols = await asset_view.initCustomAttDefTableFixComlumns();
-    asset_view.initTable('customAttdefTable',cols)
-    cols = await asset_view.initStatusTableFixComlumns();
-    asset_view.initTable('statusTable',cols) 
 
-  })()
+  $.notify.defaults({
+    showAnimation: 'fadeIn',
+    hideAnimation: 'fadeOut'
+  });
 
+  var isRaw = false // by default: human readable form
+  asset_view.initTable('assetTable', isRaw)
+  asset_view.initTable('categoryTable', isRaw)
+  asset_view.initTable('customAttdefTable', isRaw)
+  asset_view.initTable('statusTable', isRaw)
+ 
+
+  $('#btnRefresh').click(async () => {
+
+    const herf = $('#labelProjectHref').text()
+    const projectName = $('#labelProjectName').text()
+
+    try {
+      $('.clsInProgress').show();
+
+      const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData'
+      asset_view.initTable('assetTable', isRaw)
+      asset_view.initTable('categoryTable', isRaw)
+      asset_view.initTable('customAttdefTable', isRaw)
+      asset_view.initTable('statusTable', isRaw)
+      
+      const accountId = herf.split('/')[6]
+      const projectId = herf.split('/')[8]
+      const accountId_without_b = accountId.split('b.')[1]
+      const projectId_without_b = projectId.split('b.')[1]
+      $('#labelProjectId').text(projectId_without_b); 
+
+      await asset_view.getCategories(projectId_without_b)
+      await asset_view.getCustomAttdef(projectId_without_b)
+      await asset_view.getStatus(projectId_without_b)
+      await asset_view.getAssets(accountId_without_b, projectId_without_b, projectName)
+
+      
+      
+      asset_view.refreshTable('assetTable',isRaw)  
+        asset_view.refreshTable('categoryTable',isRaw)  
+        asset_view.refreshTable('customAttdefTable',isRaw)  
+        asset_view.refreshTable('statusTable',isRaw)  
+      $('.clsInProgress').hide();
+    } catch (e) {
+      $('.clsInProgress').hide();
+    }
+  }) 
+
+  $('.input-group').click(function(){
+
+    const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData'
+    asset_view.refreshTable('assetTable',isRaw)  
+    asset_view.refreshTable('categoryTable',isRaw)  
+    asset_view.refreshTable('customAttdefTable',isRaw)  
+    asset_view.refreshTable('statusTable',isRaw)  
+  }); 
 
 });
 
- 

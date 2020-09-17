@@ -2,26 +2,23 @@
 const issueListFormat = (list) => {
    var res = ''
    for(var i in list){
-     res+=`${list[i].title} | ${list[i].status} | ${list[i].href} \n`
-     res+=`-----------------------------\n`
-   }
+     res+=`${list[i].title} | ${list[i].status}  \n`
+    }
    return res
 };
 const checklistListFormat = (list) => {
   var res = ''
   for(var i in list){
-    res+=`${list[i].title} | ${list[i].status} | ${list[i].href} \n`
-    res+=`-----------------------------\n`
-
+    res+=`${list[i].title} | ${list[i].status}  \n` 
   }
   return res
 };
 const attachmentListFormat = (list) => {
   var res = ''
   for(var i in list){
-    res+=`${list[i].name} | ${list[i].href} \n`
-    res+=`-----------------------------\n` 
-  }
+    //res+=`${list[i].title} | ${list[i].href} \n`
+    res+=`${list[i].title} in folder [${list[i].folder}] \n`
+   }
   return res
 };
  
@@ -52,7 +49,6 @@ const assetsColumns = [
    { id: 'createdAt', propertyName: 'createdAt', columnTitle: 'createdAt', columnWidth: 6, locked: false },
    //sorted columns with readable string
    { id: 'createdBy', propertyName: 'createdBy', columnTitle: 'createdBy', columnWidth: 6, locked: true },
-   { id: 'company', propertyName: 'company', columnTitle: 'company', columnWidth: 4, locked: false },
    //issue,checklist,attachment list. put them together as string because Excel does not support embeded array
    { id: 'issues', propertyName: 'issues', columnTitle: 'issues', columnWidth: 8, locked: false,format: issueListFormat },
    { id: 'checklists', propertyName: 'checklists', columnTitle: 'checklists', columnWidth: 8, locked: false,format: checklistListFormat },

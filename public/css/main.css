@@ -20,6 +20,11 @@ body {
 
 
 .InProgressImg{
+  width: 80%;
+  height: 80%;
+}
+
+.InProgressImg_table{
   width: 30%;
   height: 30%;
 }

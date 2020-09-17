@@ -18,7 +18,7 @@ var Defs = {
 
 async function exportAssets(accountId, projectId) {
   var allAssets = []
-  allAssets = await asset_service.getAllAssets(projectId, null, allAssets)
+  allAssets = await asset_service.getAllAssets(projectId, null, allAssets,0)
   var allStatusSets = []
   allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
   var allCategories = []
@@ -39,14 +39,25 @@ async function exportAssets(accountId, projectId) {
 
 
   //sorting out with customized data 
-
+  //prepare both raw id and human readble string for some properties
   Defs.allCategories.forEach(async ct => {  
     var find = Defs.allProjectUsers.find(i => i.autodeskId == ct.createdBy)
-    ct.createdBy = find ? find.name : ct.createdBy
+    ct.createdById = ct.createdBy  
+    ct.createdBy = find ? find.name : ct.createdBy   
+
+    find = Defs.allCategories.find(i=>i.id == ct.parentId)
+    ct.parent = find?find.name:'<invalid>'
+
+    ct.subcategories = []
+    ct.subcategoryIds.forEach(async subc => { 
+      find = Defs.allCategories.find(i=>i.id == subc.id)
+      ct.subcategories.push(find?find.name:'<invalid>')
+    })
   });
 
   Defs.allCustomAttdefs.forEach(async cadef => {  
     var find = Defs.allProjectUsers.find(i => i.autodeskId == cadef.createdBy)
+    cadef.createdById = cadef.createdBy
     cadef.createdBy = find ? find.name : cadef.createdBy
     switch(cadef.dataType){
       case 'text':
@@ -76,7 +87,9 @@ async function exportAssets(accountId, projectId) {
     const statuses = set.values 
     statuses.forEach(async st=>{
       var find = Defs.allProjectUsers.find(i => i.autodeskId == st.createdBy)
+      st.createdById =  st.createdBy
       st.createdBy = find ? find.name : st.createdBy
+      st.setId = set.id
       st.set = setName
       Defs.allStatuses.push(st)
     }) 
@@ -84,35 +97,24 @@ async function exportAssets(accountId, projectId) {
 
   let promiseArr = allAssets.map(async (a, index) => {
 
-    const assetId = a.id //GUID for relationship 
+    const assetId = a.id 
     var find = Defs.allProjectUsers.find(i => i.autodeskId == a.createdBy)
+    a.createdById = a.createdBy
     a.createdBy = find ? find.name : '<invalid>'
+
     find = Defs.allProjectUsers.find(i => i.autodeskId == a.updatedBy)
+    a.updatedById = a.updatedBy
     a.updatedBy = find ? find.name : '<invalid>'
+
     find = Defs.allCategories.find(i => i.id == a.categoryId)
-    a.category = find ? find.name : '<invalid>'
-    find = Defs.allCategories.find(i => i.id == a.categoryId)
-    a.category = find ? find.name : '<invalid>'
+    a.categoryId = a.categoryId
+    a.category = find ? find.name : '<invalid>' 
 
-    find = Defs.allStatusSets.find(i => i.values.find(j=>j.id == a.statusId)!=null)
-    a.status = find ? find.label : '<invalid>'
-    
-    find = Defs.allProjectCompanies.find(i => i.id == a.companyId)
-    a.company = find ? find.name : '<invalid>'
+    find = Defs.allStatuses.find(i => i.id == a.statusId)
+    a.statusId = a.statusId
+    a.status = find ? find.label : '<invalid>'  
 
-    //const calist = await sortCustomAtt(a.customAttributes)
-    //better make it flat, fiendly for table view
-    // var calist = {}
-    // for (const ca in a.customAttributes) {
-    //   find = Defs.allCustomAttdefs.find(i => i.name == ca)
-    //   calist[ca] = {
-    //     displayName: find ? find.displayName : '<none>',
-    //     value: a.customAttributes[ca]
-    //   }
-    // }
-    // a.calist = calist
-
-    //custom attributes name must be unique, so do not worry duplicated name
+    //custom attributes [name] must be unique, so do not worry duplicated name
     for (const ca in a.customAttributes) {
       find = Defs.allCustomAttdefs.find(i => i.name == ca)
       a[ca] = find?a.customAttributes[ca]:''
@@ -138,7 +140,9 @@ async function exportAssets(accountId, projectId) {
           eachEntity = checklistData 
       }
       if (with_entity.domain == 'autodesk-bim360-documentmanagement' && with_entity.type == 'documentlineage') {
-        eachEntity = {type:'attachment',name:'name',href:'href'}
+        const attachmentData = await relationship_service.getAttachment(accountId, projectId, with_entity.id)
+        if (attachmentData)
+          eachEntity = attachmentData 
       } 
       return eachEntity
     })
@@ -179,8 +183,18 @@ async function exportCategory(projectId) {
   //sorting out with customized data  
   allCategories.forEach(async ct => {  
     var find = allProjectUsers.find(i => i.autodeskId == ct.createdBy)
-    ct.createdBy = find ? find.name : ct.createdBy
-  });  
+    ct.createdById = ct.createdBy  
+    ct.createdBy = find ? find.name : ct.createdBy   
+
+    find = allCategories.find(i=>i.id == ct.parentId)
+    ct.parent = find?find.name:'-'
+
+    ct.subcategories = []
+    ct.subcategoryIds.forEach(async subc => { 
+      find = allCategories.find(i=>i.id == subc)
+      ct.subcategories.push(find?find.name:'<invalid>')
+    })
+  });
 
   return allCategories
 }
@@ -197,6 +211,7 @@ async function exportCustomAttDef(projectId) {
 
   allCustomAttdefs.forEach(async cadef => {  
     var find = allProjectUsers.find(i => i.autodeskId == cadef.createdBy)
+    cadef.createdById = cadef.createdBy 
     cadef.createdBy = find ? find.name : cadef.createdBy
     switch(cadef.dataType){
       case 'text':
@@ -229,9 +244,7 @@ async function exportStatus(projectId) {
   var allStatusSets = []
   allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
   var allProjectUsers = []
-  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
-   
-
+  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers) 
   
   var allStatuses = []
   allStatusSets.forEach(async set => { 
@@ -239,12 +252,13 @@ async function exportStatus(projectId) {
     const statuses = set.values 
     statuses.forEach(async st=>{
       var find = allProjectUsers.find(i => i.autodeskId == st.createdBy)
+      st.createdById =  st.createdBy
       st.createdBy = find ? find.name : st.createdBy
+      st.setId = set.id
       st.set = setName
       allStatuses.push(st)
     }) 
   }); 
-
   return allStatuses
 }
 

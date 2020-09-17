@@ -109,7 +109,7 @@ function prepareUserHubsTree() {
       },
       "plugins": ["types", "state", "sort"],
       "state": { "key": "sourceHubs" }// key restore tree state
-  }).on('select_node.jstree', function(evt, data){
+  }).on('activate_node.jstree', function(evt, data){
     if (data != null && data.node != null && (data.node.type == 'bim360projects' )) {
       $('#labelProjectHref').text(data.node.id);
       $('#labelProjectName').text(data.node.text);
@@ -117,7 +117,7 @@ function prepareUserHubsTree() {
       
        (async (herf,projectName)=>{
 
-        // $('.clsInProgress').show();
+         $('.clsInProgress').show();
 
          const accountId = herf.split('/')[6]
          const projectId = herf.split('/')[8] 
@@ -126,28 +126,23 @@ function prepareUserHubsTree() {
          $('#labelProjectId').text(projectId_without_b);
 
 
-        // const allCagories = await asset_view.getCategories(projectId_without_b)
-        // const allCustomAttdef = await asset_view.getCustomAttdef(projectId_without_b)
-        // const allStatus = await asset_view.getStatus(projectId_without_b)
-        // const allAssets= await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
+        await asset_view.getCategories(projectId_without_b)
+        await asset_view.getCustomAttdef(projectId_without_b)
+        await asset_view.getStatus(projectId_without_b)
+        await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
 
-        // const assetCols = await asset_view.initAssetTableFixComlumns();
-        // const categoryCols = await asset_view.initCagoryTableFixComlumns();
-        // const customAttDefCols = await asset_view.initCustomAttDefTableFixComlumns();
-        // const statusCols = await asset_view.initStatusTableFixComlumns();
+        const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData' 
+        asset_view.refreshTable('assetTable',isRaw)  
+        asset_view.refreshTable('categoryTable',isRaw)  
+        asset_view.refreshTable('customAttdefTable',isRaw)  
+        asset_view.refreshTable('statusTable',isRaw)   
 
-        // await asset_view.refreshTable('assetTable',allAssets,assetCols,allCustomAttdef)  
-        // await asset_view.refreshTable('categoryTable',allCagories,categoryCols)  
-        // await asset_view.refreshTable('customAttdefTable',allCustomAttdef,customAttDefCols)  
-        // await asset_view.refreshTable('statusTable',allStatus,statusCols)  
-        // $('.clsInProgress').hide();
+        $('.clsInProgress').hide();
 
 
-      })(data.node.id,data.node.text)
+      })(data.node.id,data.node.text) 
       
       
-      
-      //$('#btnRefresh').click();
     }
   }); 
 }

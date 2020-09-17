@@ -26,9 +26,10 @@ const { stream } = require('exceljs');
 
 
 
-async function getAllAssets(projectId, nextUrl, allAssets) {
+async function getAllAssets(projectId, nextUrl, allAssets,index) {
   try {
     //limit and offset have no effect on GET:Catrgories, no either cursorState and nextUrl -- bug?
+    index++
 
     //const endpoint = nextUrl?nextUrl:str.format.format()`${config.bim360Asset.get_categories}`,projectId)
     const endpoint = nextUrl ? `${nextUrl}&includeCustomAttributes=true` : `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets` +
@@ -41,8 +42,8 @@ async function getAllAssets(projectId, nextUrl, allAssets) {
       allAssets = allAssets.concat(response.results);
       if (response.pagination.nextUrl != null) {
         //placeholder for nextUrl...
-        await utility.delay(utility.DELAY_MILISECOND)
-        return getAllAssets(projectId, response.pagination.nextUrl, allCategories);
+        await utility.delay(utility.DELAY_MILISECOND * index)
+        return getAllAssets(projectId, response.pagination.nextUrl, allAssets,index);
       }
       else {
         return allAssets
@@ -145,127 +146,79 @@ async function getAllStatusSets(projectId, nextUrl, allStatusSets) {
     console.error(`allStatusSets ${projectId} failed: ${e}`)
     return []
   }
-}
+} 
 
-
-async function createCategory(projectId, body) {
+async function importAsset(projectId, body,assetId) {
   try {
- 
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories`
+
+    const endpoint = assetId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets/${assetId}`:
+                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
+    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
+                              await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
-    console.error(`createCategory failed: ${e}`)
+    console.error(`importAsset failed: ${e}`)
     return false
   }
 }
 
-async function createCustomAttDef(projectId, body) {
+async function importCategory(projectId, body,categoryId) {
   try {
 
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes`
+    const endpoint = categoryId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories/${categoryId}`:
+                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
+    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
+                              await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
-    console.error(`createCustomAttDef failed: ${e}`)
+    console.error(`importAsset failed: ${e}`)
     return false
   }
 }
 
-async function createStatus(projectId, body) {
+
+
+async function importCustomAttDef(projectId, body,customAttDefId) {
   try {
 
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
+    const endpoint = customAttDefId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes/${customAttDefId}`:
+                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
+    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
+                              await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
-    console.error(`createStatus failed: ${e}`)
-    return false
-  }
-}
-async function createAsset(projectId, body) {
-  try {
-
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
-    var headers = config.httpHeaders(config.token_3legged)
-    headers['Content-Type'] = 'application/json'
-    await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
-    return true
-  } catch (e) {
-    console.error(`createAssets failed: ${e}`)
+    console.error(`importAsset failed: ${e}`)
     return false
   }
 }
 
-////PATCH
-async function patchCategory(projectId, categoryId, body) {
+
+async function importStatus(projectId, body,statusId) {
   try {
 
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories/${categoryId}`
+    const endpoint = statusId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses/${statusId}`:
+                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = await patch(endpoint, headers, JSON.stringify(body));
+    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
+                              await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
-    console.error(`patchCategory failed: ${e}`)
+    console.error(`importAsset failed: ${e}`)
     return false
   }
 }
 
-async function patchCustomAttDef(projectId, customAttDefId, body) {
-  try {
-
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes/${customAttDefId}`
-    var headers = config.httpHeaders(config.token_3legged)
-    headers['Content-Type'] = 'application/json'
-    await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
-    return true
-  } catch (e) {
-    console.error(`patchCustomAttDef failed: ${e}`)
-    return false
-  }
-}
-
-async function patchStatus(projectId, statusId, body) {
-  try {
-
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses/${statusId}`
-    var headers = config.httpHeaders(config.token_3legged)
-    headers['Content-Type'] = 'application/json'
-    await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
-    return true
-  } catch (e) {
-    console.error(`patchStatus failed: ${e}`)
-    return false
-  }
-}
-async function patchAsset(projectId, assetId, body) {
-  try {
-
-    const endpoint = `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets/${assetId}`
-    var headers = config.httpHeaders(config.token_3legged)
-    headers['Content-Type'] = 'application/json'
-    await utility.delay(utility.DELAY_MILISECOND)
-    const response = await post(endpoint, headers, JSON.stringify(body));
-    return true
-  } catch (e) {
-    console.error(`patchAsset failed: ${e}`)
-    return false
-  }
-}
 
 module.exports = {
   //getAssets,
@@ -274,16 +227,8 @@ module.exports = {
   getAllCustomAttdefs,
   getAllStatusSets,
 
-  createAsset,
-  patchAsset,
-
-  createCategory,
-  patchCategory,
-
-  createCustomAttDef,
-  patchCustomAttDef,
-
-  createStatus,
-  patchStatus
-
+  importAsset, 
+  importCategory, 
+  importCustomAttDef, 
+  importStatus 
 }
