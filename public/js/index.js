@@ -79,5 +79,31 @@ $(document).ready(function () {
     asset_view.refreshTable('statusTable',isRaw)  
   }); 
 
+ 
+  $('#hidden-delete-file').on('change', async (evt) => {
+
+    $('.importInProgress').show();
+    const projectId = $('#labelProjectId').text()
+    const files = evt.target.files
+    if (files.length === 1) {
+        const formData = new FormData();
+        formData.append('xlsx', files[0]);
+        const response = await fetch(`/api/forge/asset/delete/${projectId}`, {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok) {
+          $('.importInProgress').hide(); 
+
+        } else {
+          $('.importInProgress').hide();
+
+        }
+    } else {
+         $('.importInProgress').hide();
+    }
+
+});
+
 });
 

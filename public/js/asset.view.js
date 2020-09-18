@@ -6,9 +6,12 @@ class AssetView {
     this._customAttDefTable = null
     this._statusTable = null
 
+    this._pageLimit = 25
+    this._pageOffset = 0
+
 
     this._data ={
-      assetTable:null,
+      assetTable:[],
       categoryTable:null,
       customAttdefTable:null,
       statusTable:null
@@ -90,6 +93,15 @@ class AssetView {
     }
   }
 
+  resetData(){
+    this._data ={
+      assetTable:[],
+      categoryTable:null,
+      customAttdefTable:null,
+      statusTable:null
+    } 
+  }
+
   //colum formats
   rawFormatter(value, row, index) {
     var re = ``
@@ -127,6 +139,7 @@ class AssetView {
     $(`#${domId}`).bootstrapTable('destroy');
     const columns  = this._tableFixComlumns[domId](isRaw)
     $(`#${domId}`).bootstrapTable({
+      parent:this,
       data: [],
       editable: false,
       clickToSelect: true,
@@ -143,7 +156,7 @@ class AssetView {
       showRefresh: true,
       minimumCountColumns: 2,
       smartDisplay: true,
-      columns: columns
+      columns: columns 
     });
   }
 
@@ -158,7 +171,7 @@ class AssetView {
     return cols
   }
 
-  refreshTable(domId, isRaw = false) {
+  async refreshTable(domId, isRaw = false) {
     $(`#${domId}`).bootstrapTable('destroy'); 
 
     var fixCols = this._tableFixComlumns[domId](isRaw)
@@ -166,6 +179,7 @@ class AssetView {
     if (domId == 'assetTable') {
       //this is for asset list
       fixCols = this.appendColumsToAssetTable(fixCols, this._data.customAttdefTable, isRaw)
+       
     }
     $(`#${domId}`).bootstrapTable({
       data: this._data[domId],
@@ -184,18 +198,38 @@ class AssetView {
       showRefresh: true,
       minimumCountColumns: 2,
       smartDisplay: true,
-      columns: fixCols
+      columns: fixCols//,
+      // onPageChange: async ( number, size)=> {
+      //   await this.parent.getAssets(accountId_without_b,projectId_without_b,projectName,size,number*size*2)
+
+      // }
     });
   }
 
-  async getAssets(accountId, projectId, projectName) {
+  async getAssets(accountId, projectId, projectName,limit,offset) {
+    var _this = this
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: `/api/forge/asset/onepage/${accountId}/${projectId}/${encodeURIComponent(projectName)}/${limit}/${offset}`,
+        type: 'GET',
+        success: (data) => {
+          //this._data.assetTable = this._data.assetTable.concat(data)
+          resolve(data)
+        }, error: (error) => {
+          reject(error)
+        }
+      });
+    })
+  } 
+
+
+  async getAllAssets(accountId, projectId, projectName) {
     var _this = this
     return new Promise((resolve, reject) => {
       $.ajax({
         url: `/api/forge/asset/all/${accountId}/${projectId}/${encodeURIComponent(projectName)}`,
         type: 'GET',
-        success: (data) => {
-          this._data.assetTable = data
+        success: (data) => { 
           resolve(data)
         }, error: (error) => {
           reject(error)
@@ -203,6 +237,7 @@ class AssetView {
       });
     })
   }
+ 
 
   async getCategories(projectId) {
     var _this = this
@@ -251,4 +286,7 @@ class AssetView {
       });
     })
   }
+
+ 
+
 }

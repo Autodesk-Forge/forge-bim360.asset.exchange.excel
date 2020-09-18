@@ -18,22 +18,28 @@
 
 const path = require('path');
 const express = require('express');
-const cookieSession = require('cookie-session');
+const app = express();
+const server = require('http').Server(app);  
+ const cookieSession = require('cookie-session');
 
 const PORT = process.env.PORT || 3000;
 const config = require('./config');
 if (config.credentials.client_id == null || config.credentials.client_secret == null) {
     console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.');
     return;
-}
+} 
+const cookieParser = require('cookie-parser');
 
-let app = express();
+app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieSession({
     name: 'forge_session',
     keys: ['forge_secure_key'],
     maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days, same as refresh token
 }));
+
+
 app.use(express.json({ limit: '50mb' }));
 app.use('/api/forge', require('./routes/endpoints/oauth'));
 app.use('/api/forge', require('./routes/endpoints/datamanagement'));
@@ -43,4 +49,18 @@ app.use((err, req, res, next) => {
     console.error(err);
     res.status(err.statusCode).json(err);
 });
-app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
+
+app.set('port', process.env.PORT || 3000);
+
+global.MyApp = {
+    SocketIo : require('socket.io')(server)
+  };
+  global.MyApp.SocketIo.on('connection', function(socket){
+    console.log('user connected to the socket');
+  
+    socket.on('disconnect', function(){
+        console.log('user disconnected from the socket');
+      });
+  })
+
+server.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });

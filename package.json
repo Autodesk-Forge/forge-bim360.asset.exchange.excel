@@ -10,9 +10,12 @@
   "license": "MIT",
   "dependencies": {
     "cookie-session": "^2.0.0-beta.3",
+    "exceljs": "^3.3.1",
     "express": "^4.16.3",
     "forge-apis": "^0.4.3",
+    "multer": "^1.4.2",
     "node-fetch": "^2.3.0",
-    "exceljs": "^3.3.1"
+    "socket.io": "^2.3.0",
+    "cookie-parser": "^1.4.4"
   }
 }

@@ -24,6 +24,7 @@ module.exports = {
         client_secret: process.env.FORGE_CLIENT_SECRET,
         callback_url: process.env.FORGE_CALLBACK_URL
     },
+    jobSocketUrl:process.env.JOB_SOCKET_URL,
     scopes: {
         // Required scopes for the server-side application
         internal: ['data:read', 'data:write'], 

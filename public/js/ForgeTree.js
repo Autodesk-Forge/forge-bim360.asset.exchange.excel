@@ -124,21 +124,23 @@ function prepareUserHubsTree() {
          const accountId_without_b = accountId.split('b.')[1]
         const projectId_without_b = projectId.split('b.')[1]
          $('#labelProjectId').text(projectId_without_b);
+         $('#labelAccountId').text(accountId_without_b);
 
+        const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData' 
+         asset_view.resetData()
+        asset_view.initTable('assetTable', isRaw)
+        asset_view.initTable('categoryTable', isRaw)
+        asset_view.initTable('customAttdefTable', isRaw)
+        asset_view.initTable('statusTable', isRaw)
 
         await asset_view.getCategories(projectId_without_b)
         await asset_view.getCustomAttdef(projectId_without_b)
         await asset_view.getStatus(projectId_without_b)
-        await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName)
 
-        const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData' 
-        asset_view.refreshTable('assetTable',isRaw)  
-        asset_view.refreshTable('categoryTable',isRaw)  
-        asset_view.refreshTable('customAttdefTable',isRaw)  
-        asset_view.refreshTable('statusTable',isRaw)   
-
-        $('.clsInProgress').hide();
-
+        //get first page of asset (max 25 records by  default)
+        await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName,asset_view._pageLimit,asset_view._pageOffset)
+        
+        //wait the result at socket modules....
 
       })(data.node.id,data.node.text) 
       

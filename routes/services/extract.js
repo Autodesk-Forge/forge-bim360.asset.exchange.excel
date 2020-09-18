@@ -8,25 +8,38 @@ const utility = require('../utility');
 
 
 var Defs = {
-  allCustomAttdefs: null,
-  allStatusSets: null,
-  allStatuses:null,
-  allCategories: null,
-  allProjectUsers: null
+  allCustomAttdefs: [],
+  allStatusSets: [],
+  allStatuses:[],
+  allCategories: [],
+  allProjectUsers: []
 
-}
+} 
 
-async function exportAssets(accountId, projectId) {
+async function exportAssets(accountId, projectId,cursorState=null,index=0,isOnePage) {
+
+  //get cursorState
   var allAssets = []
-  allAssets = await asset_service.getAllAssets(projectId, null, allAssets,0)
-  var allStatusSets = []
-  allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
-  var allCategories = []
-  allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
-  var allCustomAttdefs = []
-  allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
-  var allProjectUsers = []
-  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+  allAssets = await asset_service.getAssets(projectId, cursorState, allAssets,index,isOnePage)
+
+  
+  var allStatusSets = Defs.allStatusSets
+  if(allStatusSets==null || allStatusSets.length==0)
+     allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
+
+
+  var allCategories = Defs.allCategories
+  if(allCategories==null || allCategories.length==0)
+    allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
+
+  var allCustomAttdefs = Defs.allCustomAttdefs
+  if(allCustomAttdefs==null || allCustomAttdefs.length==0)
+    allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+  
+  var allProjectUsers = Defs.allProjectUsers
+  if(allProjectUsers==null || allProjectUsers.length==0)
+    allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+  
   var allProjectCompanies = []
   allProjectCompanies = await admin_service.getProjectCompanies(accountId, projectId, config.limit, 0, allProjectCompanies)
 
@@ -97,7 +110,9 @@ async function exportAssets(accountId, projectId) {
 
   let promiseArr = allAssets.map(async (a, index) => {
 
-    const assetId = a.id 
+    const assetId = a.id     
+    console.log(`sorting one assert ${assetId}`);
+
     var find = Defs.allProjectUsers.find(i => i.autodeskId == a.createdBy)
     a.createdById = a.createdBy
     a.createdBy = find ? find.name : '<invalid>'
@@ -121,11 +136,13 @@ async function exportAssets(accountId, projectId) {
     } 
 
     //how find the relationships of the asset 
-    await utility.delay(utility.DELAY_MILISECOND)
+    await utility.delay(utility.DELAY_MILISECOND*index)
     var allWithEntities = []
     allWithEntities = await relationship_service.searchRelationships(projectId, assetId, 0, allWithEntities)
  
     let subPromiseArr = allWithEntities.map(async (r, index) => {
+      await utility.delay(utility.DELAY_MILISECOND*index)
+
       var eachEntity=null
       const with_entity_index = r.entities.findIndex(i => i.domain != 'autodesk-bim360-asset')
       const with_entity = r.entities[with_entity_index]
@@ -148,6 +165,8 @@ async function exportAssets(accountId, projectId) {
     })
 
     return Promise.all(subPromiseArr).then((resultsArray) => {
+      console.log(`sorting one withEntities of assert ${assetId} done`);
+
       resultsArray = utility.flatDeep(resultsArray, Infinity)
     
       a.issues = resultsArray.filter(i=>i.type == 'issue')
@@ -162,10 +181,11 @@ async function exportAssets(accountId, projectId) {
   });
 
   return Promise.all(promiseArr).then((resultsArray) => {
+    console.log(`Promise.all sorting out assets done`); 
     resultsArray = utility.flatDeep(resultsArray, Infinity)
     return resultsArray;
   }).catch(function (err) {
-    console.log(`exception when Promise.all sorting out assets: ${err}`);
+    console.error(`exception when Promise.all sorting out assets: ${err}`);
     return []
   })
 }
@@ -174,7 +194,6 @@ async function exportAssets(accountId, projectId) {
 
 async function exportCategory(projectId) {
   
-
   var allCategories = []
   allCategories = await asset_service.getAllCategories(projectId, null, allCategories) 
   var allProjectUsers = []

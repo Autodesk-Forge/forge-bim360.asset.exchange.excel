@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+var request = require('request'); 
 
 async function get(endpoint, headers) {
     const options = { headers };
@@ -49,10 +50,33 @@ async function patch(endpoint, headers, body) {
 }
 
 
+async function mydelete(endpoint, headers) {
+    
+    //endpoint = 'https://developer.api.autodesk.com/bim360/assets/v1/projects/3ab9d062-ed91-46a4-aa97-b40407b02a75/assets/54c0e8c1-9b80-47f0-8c78-df5f2d0e100e'
+  return new Promise(function (resolve, reject) {
+
+    request.delete({
+      url: endpoint,
+      headers: headers
+       
+    },
+      function (error, response, body) {
+
+        if (error) {
+            resolve(false);  
+        } else {
+           resolve(true)  
+        }
+      }); 
+  }); 
+}
+
+
 
 module.exports = {
     get,
     post,
     put,
-    patch
+    patch,
+    mydelete
 };

@@ -27,7 +27,9 @@ const assetsColumns = [
   { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
 
    { id: 'clientAssetId', propertyName: 'clientAssetId', columnTitle: 'clientAssetId', columnWidth: 8, locked: true },
+   { id: 'categoryId', propertyName: 'categoryId', columnTitle: 'categoryId', columnWidth: 6, locked: false },
    { id: 'category', propertyName: 'category', columnTitle: 'category', columnWidth: 6, locked: false },
+   { id: 'statusId', propertyName: 'statusId', columnTitle: 'statusId', columnWidth: 6, locked: false },
    { id: 'status', propertyName: 'status', columnTitle: 'status', columnWidth: 6, locked: false },
    { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
    { id: 'barcode', propertyName: 'barcode', columnTitle: 'barcode', columnWidth: 8, locked: false },
@@ -48,6 +50,7 @@ const assetsColumns = [
    { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 4, locked: false },
    { id: 'createdAt', propertyName: 'createdAt', columnTitle: 'createdAt', columnWidth: 6, locked: false },
    //sorted columns with readable string
+   { id: 'createdById', propertyName: 'createdById', columnTitle: 'createdById', columnWidth: 6, locked: true },
    { id: 'createdBy', propertyName: 'createdBy', columnTitle: 'createdBy', columnWidth: 6, locked: true },
    //issue,checklist,attachment list. put them together as string because Excel does not support embeded array
    { id: 'issues', propertyName: 'issues', columnTitle: 'issues', columnWidth: 8, locked: false,format: issueListFormat },

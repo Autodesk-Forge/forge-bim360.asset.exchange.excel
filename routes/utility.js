@@ -1,8 +1,27 @@
 
 
 const readline = require("readline");
-const DELAY_MILISECOND = 1000;
+const fs = require("fs");
+const crypto = require('crypto');
+const path = require('path');
 
+const DELAY_MILISECOND = 1000;
+const statusFolder = './Status/'
+
+
+const SocketEnum = {
+  ASSET_TOPIC: 'asset topic',
+  EXPORT_ONEPAGE_DONE:'export one page done',
+  EXPORT_DONE: 'export done' ,
+  IMPORT_DONE:'import done',
+  DELETE_DONE:'delete done' 
+};  
+  
+function socketNotify(topic,message,data){
+  //notify client
+  var sockketData = {message:message,data:data} 
+  global.MyApp.SocketIo.emit(topic, JSON.stringify(sockketData));
+}
 
 
 async function readLines(prompt) {
@@ -40,10 +59,14 @@ function flatDeep(arr, d = 1) {
 };
 
 
+ 
+ 
 module.exports = {   
   readLines,
   delay,
   DELAY_MILISECOND,
   flatDeep,
-  wait
+  wait, 
+  socketNotify,
+  SocketEnum
 };

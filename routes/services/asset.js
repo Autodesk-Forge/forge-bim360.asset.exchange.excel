@@ -19,20 +19,23 @@
 'use strict';
 
 const config = require('../../config');
-const { get, post, patch } = require('./fetch_common');
+const { get, post, patch, mydelete } = require('./fetch_common');
 const utility = require('../utility');
 const { stream } = require('exceljs');
 
 
 
 
-async function getAllAssets(projectId, nextUrl, allAssets,index) {
+async function getAssets(projectId, cursorState, allAssets, index, isOnePage = false) {
   try {
     //limit and offset have no effect on GET:Catrgories, no either cursorState and nextUrl -- bug?
     index++
 
     //const endpoint = nextUrl?nextUrl:str.format.format()`${config.bim360Asset.get_categories}`,projectId)
-    const endpoint = nextUrl ? `${nextUrl}&includeCustomAttributes=true` : `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets` +
+    const endpoint = cursorState ?
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets` +
+      `?includeCustomAttributes=true&cursorState=${cursorState}` :
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets` +
       `?includeCustomAttributes=true`
     const headers = config.httpHeaders(config.token_3legged)
     const response = await get(endpoint, headers);
@@ -40,16 +43,16 @@ async function getAllAssets(projectId, nextUrl, allAssets,index) {
     if (response.results && response.results.length > 0) {
       console.log(`getting assets of project ${projectId}`)
       allAssets = allAssets.concat(response.results);
-      if (response.pagination.nextUrl != null) {
+      if (!isOnePage && response.pagination.nextUrl != null) {
         //placeholder for nextUrl...
         await utility.delay(utility.DELAY_MILISECOND * index)
-        return getAllAssets(projectId, response.pagination.nextUrl, allAssets,index);
+        return getAssets(projectId, response.pagination.cursorState, allAssets, index);
       }
       else {
         return allAssets
       }
     } else {
-      return []
+      return allAssets
     }
   } catch (e) {
     console.error(`allAssets of  ${projectId} failed: ${e}`)
@@ -146,18 +149,18 @@ async function getAllStatusSets(projectId, nextUrl, allStatusSets) {
     console.error(`allStatusSets ${projectId} failed: ${e}`)
     return []
   }
-} 
+}
 
-async function importAsset(projectId, body,assetId) {
+async function importAsset(projectId, body, assetId) {
   try {
 
-    const endpoint = assetId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets/${assetId}`:
-                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
+    const endpoint = assetId ? `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets/${assetId}` :
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
-                              await post(endpoint, headers, JSON.stringify(body))
+    const response = assetId ? await patch(endpoint, headers, JSON.stringify(body)) :
+      await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
     console.error(`importAsset failed: ${e}`)
@@ -165,35 +168,16 @@ async function importAsset(projectId, body,assetId) {
   }
 }
 
-async function importCategory(projectId, body,categoryId) {
+async function importCategory(projectId, body, categoryId) {
   try {
 
-    const endpoint = categoryId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories/${categoryId}`:
-                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories`
+    const endpoint = categoryId ? `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories/${categoryId}` :
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/categories`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
-                              await post(endpoint, headers, JSON.stringify(body))
-    return true
-  } catch (e) {
-    console.error(`importAsset failed: ${e}`)
-    return false
-  }
-}
-
-
-
-async function importCustomAttDef(projectId, body,customAttDefId) {
-  try {
-
-    const endpoint = customAttDefId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes/${customAttDefId}`:
-                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes`
-    var headers = config.httpHeaders(config.token_3legged)
-    headers['Content-Type'] = 'application/json'
-    await utility.delay(utility.DELAY_MILISECOND)
-    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
-                              await post(endpoint, headers, JSON.stringify(body))
+    const response = assetId ? await patch(endpoint, headers, JSON.stringify(body)) :
+      await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
     console.error(`importAsset failed: ${e}`)
@@ -202,33 +186,81 @@ async function importCustomAttDef(projectId, body,customAttDefId) {
 }
 
 
-async function importStatus(projectId, body,statusId) {
+
+async function importCustomAttDef(projectId, body, customAttDefId) {
   try {
 
-    const endpoint = statusId?`https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses/${statusId}`:
-                              `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
+    const endpoint = customAttDefId ? `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes/${customAttDefId}` :
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/custom-attributes`
     var headers = config.httpHeaders(config.token_3legged)
     headers['Content-Type'] = 'application/json'
     await utility.delay(utility.DELAY_MILISECOND)
-    const response = assetId? await patch(endpoint, headers, JSON.stringify(body)):
-                              await post(endpoint, headers, JSON.stringify(body))
+    const response = assetId ? await patch(endpoint, headers, JSON.stringify(body)) :
+      await post(endpoint, headers, JSON.stringify(body))
     return true
   } catch (e) {
     console.error(`importAsset failed: ${e}`)
     return false
+  }
+}
+
+
+async function importStatus(projectId, body, statusId) {
+  try {
+
+    const endpoint = statusId ? `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses/${statusId}` :
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/asset-statuses`
+    var headers = config.httpHeaders(config.token_3legged)
+    headers['Content-Type'] = 'application/json'
+    await utility.delay(utility.DELAY_MILISECOND)
+    const response = assetId ? await patch(endpoint, headers, JSON.stringify(body)) :
+      await post(endpoint, headers, JSON.stringify(body))
+    return true
+  } catch (e) {
+    console.error(`importAsset failed: ${e}`)
+    return false
+  }
+}
+
+
+
+async function deleteAssets(projectId, ids) {
+  try { 
+    const endpoint =
+      `https://developer.api.autodesk.com/bim360/assets/v1/projects/${projectId}/assets`
+    const headers = config.httpHeaders(config.token_3legged)
+
+    let promiseArr = ids.map(async (id, index) => {
+      await utility.delay(utility.DELAY_MILISECOND * index)
+      const res = await mydelete(endpoint + `/${id}`, headers)
+      console.log(`delete ${id}  ${res}`)
+      return res
+    })
+
+    return Promise.all(promiseArr).then((results) => {
+      console.log('deleting done...')
+      return results
+    }).catch(function (err) {
+      console.log(`exception when Promise.all import assets: ${err}`);
+      return []
+    })
+
+  } catch (e) {
+    console.error(`deleting all assets  ${projectId} failed: ${e}`)
+    return []
   }
 }
 
 
 module.exports = {
-  //getAssets,
-  getAllAssets,
+  getAssets,
   getAllCategories,
   getAllCustomAttdefs,
   getAllStatusSets,
 
-  importAsset, 
-  importCategory, 
-  importCustomAttDef, 
-  importStatus 
+  importAsset,
+  importCategory,
+  importCustomAttDef,
+  importStatus,
+  deleteAssets
 }

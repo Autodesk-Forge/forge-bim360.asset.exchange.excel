@@ -25,6 +25,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer')
 const upload = multer({ dest: './Excel_Uploads/' });
+const utility = require('../utility');
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -53,22 +54,22 @@ router.use(async (req, res, next) => {
 });
 
 
-router.get('/asset/all/:accountId/:projectId/:projectName', async (req, res, next) => {
+router.get('/asset/onepage/:accountId/:projectId/:projectName/:limit/:offset', async (req, res, next) => {
 
   try {
     const accountId = req.params['accountId'] 
     const projectId = req.params['projectId'] 
-    const projectName = req.params['projectName']
+    const limit = req.params['limit']
+    const offset = req.params['offset'] 
 
-    const allAssets = await extract.exportAssets(accountId,projectId) 
-    const xx = await _excel._export(`bim360-assets-report<${projectName}>`,{
-            assets:allAssets,
-            categories:extract.Defs.allCategories,
-            customAttDefs:extract.Defs.allCustomAttdefs,
-            statuses: extract.Defs.allStatuses
-        }
-      )
-    res.json(allAssets) 
+    res.status(200).end()
+
+    const cursorState = new Buffer(`{"limit":${limit},"offset":${offset}}`).toString('base64');
+    const onePageAssets = await extract.exportAssets(accountId,projectId,cursorState,0,true) 
+
+    utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
+                         utility.SocketEnum.EXPORT_ONEPAGE_DONE,
+                         onePageAssets)
 
   } catch (e) {
     // here goes out error handler
@@ -79,9 +80,12 @@ router.get('/asset/all/:accountId/:projectId/:projectName', async (req, res, nex
  
 router.get('/asset/categories/:projectId', async (req, res, next) => {
 
+  //normally, volumns of category records would be small.
+  //fine to dump in one time
   try {
     const projectId = req.params['projectId']
     const allCategories = await  extract.exportCategory(projectId)  
+    extract.Defs.allCategories = allCategories
     res.send(allCategories)
   } catch (e) {
     // here goes out error handler
@@ -92,9 +96,13 @@ router.get('/asset/categories/:projectId', async (req, res, next) => {
 
 router.get('/asset/custom_attdef/:projectId', async (req, res, next) => {
 
+  //normally, volumns of customAttDef records would be small. fine to dump in one time
+  //otherwise, follow the same format of get assets
+
   try {
     const projectId = req.params['projectId']
     var allCustomAttdefs = await  extract.exportCustomAttDef(projectId)  
+    extract.Defs.allCustomAttdefs = allCustomAttdefs
 
     res.send(allCustomAttdefs)
   } catch (e) {
@@ -107,9 +115,13 @@ router.get('/asset/custom_attdef/:projectId', async (req, res, next) => {
 
 router.get('/asset/status/:projectId', async (req, res, next) => {
 
+  //normally, volumns of statues records would be small. fine to dump in one time
+  //otherwise, follow the same format of get assets
   try {
     const projectId = req.params['projectId']
-    var allStatuses = await  extract.exportStatus(projectId)   
+    var allStatuses = await  extract.exportStatus(projectId) 
+    extract.Defs.allStatuses = allStatuses
+  
     res.send(allStatuses)
   } catch (e) {
     // here goes out error handler
@@ -118,6 +130,51 @@ router.get('/asset/status/:projectId', async (req, res, next) => {
   }
 });
 
+
+
+router.get('/asset/all/:accountId/:projectId/:projectName', async (req, res) => {
+
+  const accountId = req.params['accountId']  
+  const projectId = req.params['projectId'] 
+  const projectName = req.params['projectName']
+ 
+  res.status(200).end()   
+
+  const allAssets = await extract.exportAssets(accountId,projectId,null,0,false) 
+  const result = await _excel._export(`bim360-assets-report<${projectName}>`,{
+          assets:allAssets,
+          categories:extract.Defs.allCategories,
+          customAttDefs:extract.Defs.allCustomAttdefs,
+          statuses: extract.Defs.allStatuses 
+      }
+  ) 
+
+   utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
+    utility.SocketEnum.EXPORT_DONE,
+    {result:result,projectName:projectName})
+  
+}); 
+
+
+router.get('/asset/:jobId', async (req, res) => {
+
+  try {   
+    const jobId = req.params['jobId'] 
+    const status = utility.readStatus(jobId) 
+
+    if(status == 'succeeded')
+      // now delete this status file
+      utility.deleteStatus(jobId)
+
+    if(status) 
+      res.status(200).json({status:status});  
+    else 
+      res.status(200).json({status:'failed'});
+   } catch(e) {
+      console.log('get job failed: '+ e.message)  
+      res.status(500).end('get job failed!')
+  }  
+}); 
 
 router.get('/asset/downloadExcel/:projectName', async (req, res) => {
 
@@ -141,15 +198,39 @@ router.get('/asset/downloadExcel/:projectName', async (req, res) => {
 router.post('/asset/importExcel/:projectId', upload.single('xlsx'), async function (req, res) {
   const { projectId } = req.params;
   const xlsx = fs.readFileSync(req.file.path);
-  try {
+  try { 
 
-      const results = await excel._import(projectId,xlsx)
-      res.json(results);
+      res.status(200).end()    
+      const result = await excel._import(projectId,xlsx)
+
+      utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
+        utility.SocketEnum.IMPORT_DONE,
+        {result:result,projectId:projectId})
   } catch (err) {
-      handleError(err, res);
+    res.status(500).end()  
   }
 });
 
+
+
+// POST /api/issues/:issue_container/import
+router.post('/asset/delete/:projectId', upload.single('xlsx'),async function (req, res) {
+   
+  const { projectId } = req.params;
+  const xlsx = fs.readFileSync(req.file.path);
+  try { 
+
+      res.status(200).end()    
+      const result = await excel._import(projectId,xlsx)
+
+      utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
+        utility.SocketEnum.DELETE_DONE,
+        {result:result,projectId:projectId})
+  } catch (err) {
+    res.status(500).end()  
+  }
+     
+}); 
  
 
 
