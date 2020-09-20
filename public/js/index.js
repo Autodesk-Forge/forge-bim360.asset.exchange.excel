@@ -56,8 +56,9 @@ $(document).ready(function () {
       await asset_view.getCategories(projectId_without_b)
       await asset_view.getCustomAttdef(projectId_without_b)
       await asset_view.getStatus(projectId_without_b)
-      await asset_view.getAssets(accountId_without_b, projectId_without_b, projectName)
-
+      //get first page of asset (max 25 records by  default)
+      await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName,asset_view._pageLimit,asset_view._pageOffset)
+        
       
       
       asset_view.refreshTable('assetTable',isRaw)  

@@ -25,21 +25,22 @@ class AssetView {
           { field: 'version', title: "version", align: 'center' },
           { field: 'description', title: "description", align: 'left' },
           { field: 'isActive', title: "isActive", align: 'center' },
-          isRaw ? { field: 'categoryId', title: "category", align: 'center' } : { field: 'category', title: "category", align: 'center' },
-          isRaw ? { field: 'statusId', title: "status", align: 'center' } : { field: 'status', title: "status", align: 'center' },
+          isRaw ? { field: 'categoryId', title: "category", align: 'left', halign:'center',color:'red'} : { field: 'category', title: "category", align: 'center' },
+          isRaw ? { field: 'statusId', title: "status", align: 'left', halign:'center' } : { field: 'status', title: "status", align: 'center' },
           { field: 'barcode', title: "barcode", align: 'center' },
-          { field: 'serialNumber', title: "serialNumber", align: 'center' },
+          { field: 'serialNumber', title: "serialNumber", align: 'left' },
           { field: 'installationDate', title: "installationDate", align: 'center' },
           { field: 'installedBy', title: "installedBy", align: 'center' },
           { field: 'warrantyStartDate', title: "warrantyStartDate", align: 'center' },
           { field: 'warrantyEndDate', title: "warrantyEndDate", align: 'center' },
           { field: 'expectedLifeYears', title: "expectedLifeYears", align: 'center' },
           { field: 'manufacturer', title: "manufacturer", align: 'center' },
+          { field: 'locationId', title: "locationId", align: 'left' },  
           { field: 'createdAt', title: "createdAt", align: 'center' },
-          isRaw ? { field: 'createdById', title: "createdById", align: 'center' } : { field: 'createdBy', title: "createdBy", align: 'center' },
-          isRaw ? { field: 'issues', title: "issues", align: 'center', formatter: this.parent.rawFormatter, width: 20 } : { field: 'issues', title: "issues", align: 'center', formatter: this.parent.humanIssueFormatter, width: 20 },
-          isRaw ? { field: 'checklists', title: "checklists", align: 'center', formatter: this.parent.rawFormatter, width: 20 } : { field: 'checklists', title: "checklists", align: 'center', formatter: this.parent.humanChecklistFormatter, width: 20 },
-          isRaw ? { field: 'attachments', title: "attachments", align: 'center', formatter: this.parent.rawFormatter, width: 10 } : { field: 'attachments', title: "attachments", align: 'center', formatter: this.parent.humanAttachmentFormatter, width: 10 }
+          isRaw ? { field: 'createdById', title: "createdById", align: 'center' } : { field: 'createdBy', title: "createdBy", align: 'left' },
+          isRaw ? { field: 'issues', title: "issues", align: 'left', halign:'center',formatter: this.parent.rawFormatter, width: 180 } : { field: 'issues', title: "issues", align: 'left', halign:'center', formatter: this.parent.humanIssueFormatter, width: 180 },
+          isRaw ? { field: 'checklists', title: "checklists", align: 'left', halign:'center', formatter: this.parent.rawFormatter, width: 20 } : { field: 'checklists', title: "checklists", align: 'left', halign:'center', formatter: this.parent.humanChecklistFormatter, width: 20 },
+          isRaw ? { field: 'attachments', title: "attachments", align: 'left', halign:'center', formatter: this.parent.rawFormatter, width: 10 } : { field: 'attachments', title: "attachments", align: 'left', halign:'center', formatter: this.parent.humanAttachmentFormatter, width: 10 }
         ]
       },
 
@@ -104,34 +105,50 @@ class AssetView {
 
   //colum formats
   rawFormatter(value, row, index) {
-    var re = ``
+    var re = `<ul>`
     value.forEach(async element => {
-      re += `${element.id}\n`;
+      re += `<li>${element.id}</li>`;
     });
+    re += `</ul>`
+
     return re
   }
 
   humanIssueFormatter(value, row, index) {
-    var re = ``
+    var re = `<ul>`
     value.forEach(async element => {
-      re += `<a href="${element.href}">${element.title}</a>|${element.status}\n`;
+      const href = element.href 
+      const title = element.title.split(' ').join('&nbsp')
+      const status = element.status.split(' ').join('&nbsp')
+
+      re += `<li><a href="${href}">${title}</a>&nbsp|&nbsp${status}</li>`;
     });
+    re += `</ul>`
     return re
   }
 
   humanChecklistFormatter(value, row, index) {
 
-    var re = ``
+    var re = `<ul>`
     value.forEach(async element => {
-      re += `<a href="${element.href}">${element.title}</a>|${element.status}\n`;
+      const href = element.href 
+      const title = element.title.split(' ').join('&nbsp')
+      const status = element.status.split(' ').join('&nbsp')
+      re += `<li><a href="${href}">${title}</a>&nbsp|&nbsp${status}</li>`;
     });
+    re += `</ul>`
+
     return re
   }
   humanAttachmentFormatter(value, row, index) {
-    var re = ``
+    var re = `<ul>`
     value.forEach(async element => {
-      re += `<a href="${element.href}">${element.title}</a>\n`;
+      const href = element.href 
+      const title = element.title.split(' ').join('&nbsp')
+      re += `<li><a href="${href}">${title}</a></li>`;
     });
+    re += `</ul>`
+
     return re
   } 
 

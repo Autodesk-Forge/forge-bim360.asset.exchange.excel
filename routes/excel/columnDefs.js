@@ -44,7 +44,8 @@ const assetsColumns = [
    { id: 'expectedLifeYears', propertyName: 'expectedLifeYears', columnTitle: 'expectedLifeYears', columnWidth: 8, locked: false },
    { id: 'manufacturer', propertyName: 'manufacturer', columnTitle: 'manufacturer', columnWidth: 8, locked: false },
    { id: 'model', propertyName: 'model', columnTitle: 'model', columnWidth: 6, locked: false },
-   
+   { id: 'locationId', propertyName: 'locationId', columnTitle: 'locationId', columnWidth: 8, locked: false },
+
    
    { id: 'isActive', propertyName: 'isActive', columnTitle: 'isActive', columnWidth: 6, locked: false },
    { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 4, locked: false },

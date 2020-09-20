@@ -47,17 +47,39 @@ async function _export(exportName, dataArray) {
         });
 
         for (const d of data) {
-            let row = {};
+            let rowData = {};
             for (const column of columnDef) {
                 if (column.format) {
-                    row[column.id] = column.format(d[column.propertyName]);
+                    rowData[column.id] = column.format(d[column.propertyName]);
                 }
                 else {
-                    row[column.id] = d[column.propertyName];
+                    rowData[column.id] = d[column.propertyName];
                 }
             }
-            worksheet.addRow(row);
+
+        
+            var row = worksheet.addRow(rowData); 
+             
         }
+        worksheet.properties.defaultRowHeight = 25;
+        worksheet.properties.defaultColWidth = 30;
+        worksheet.eachRow( async (row, rowNumber) => {
+            rowNumber == 1 ? 
+                row.font = {  size: 15, bold: true }:row.font = {  size: 15, bold: false }
+            // rowNumber %2 ==0 ? 
+            //     row.fill = {
+            //             type: 'pattern',
+            //             pattern:'solid',
+            //             bgColor:{argb:'#E0E0E0'} 
+            //         }:
+            //         row.fill = {
+            //             type: 'pattern',
+            //             pattern:'solid',
+            //             bgColor:{argb:'#FFFFFF'}
+ 
+            //}
+        })
+
 
         // Setup data validation and protection where needed
         for (const column of columnDef) {
@@ -159,6 +181,8 @@ async function importAssets(projectId,assets_worksheet,allCategories,allStatuses
          try {
              const id = row.values[1]
 
+             //find category and status by name
+             //can also use the ids directly. excel data contains both name and ids
              const cat = allCategories.find(i => i.name == row.values[4])
              const st = allStatuses.find(i => i.label == row.values[6]) 
 
@@ -186,14 +210,14 @@ async function importAssets(projectId,assets_worksheet,allCategories,allStatuses
              body.customAttributes = {} 
 
              allCustomAttdefs.forEach(async c => {
-                 if(row.values[28 + i] !=undefined){
+                 if(row.values[29 + i] !=undefined){
                      if(c.dataType == 'multi_select')
-                        body.customAttributes[c.name] = JSON.parse(row.values[28 + i])
+                        body.customAttributes[c.name] = JSON.parse(row.values[29 + i])
                     else if(c.dataType == 'numeric')
-                        body.customAttributes[c.name] = Number(row.values[28 + i]).toString()
+                        body.customAttributes[c.name] = Number(row.values[29 + i]).toString()
 
                      else
-                        body.customAttributes[c.name] = row.values[28 + i]
+                        body.customAttributes[c.name] = row.values[29 + i]
                  }
                  i++
              }) 

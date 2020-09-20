@@ -221,7 +221,7 @@ router.post('/asset/delete/:projectId', upload.single('xlsx'),async function (re
   try { 
 
       res.status(200).end()    
-      const result = await excel._import(projectId,xlsx)
+      const result = await excel._delete(projectId,xlsx)
 
       utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
         utility.SocketEnum.DELETE_DONE,
