@@ -31,8 +31,9 @@ module.exports = {
 //export BIM 360 project users , recursive function
 async function getProjectUsers(projectId, limit, offset, allUsers) {
   try {
-    const endpoint = `https://developer.api.autodesk.com/bim360/admin/v1/projects/${projectId}/users?limit=${limit}&offset=${offset}`
-    const headers = config.httpHeaders(config.token_2legged)
+    const endpoint = config.endpoints.bim360Admin.get_project_users.format(projectId) + `?limit=${limit}&offset=${offset}`
+    var headers = config.endpoints.httpHeaders(config.credentials.token_2legged)
+    headers['Region'] = 'US'
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
@@ -66,8 +67,8 @@ async function getProjectUsers(projectId, limit, offset, allUsers) {
 //export BIM 360 project users , recursive function
 async function getProjectCompanies(accountId,projectId, limit, offset, allCompanies) {
   try {
-    const endpoint = `https://developer.api.autodesk.com/hq/v1/accounts/${accountId}/projects/${projectId}//companies?limit=${limit}&offset=${offset}`
-    const headers = config.httpHeaders(config.token_2legged)
+    const endpoint = config.endpoints.bim360Admin.get_project_companies.format(accountId,projectId) + `?limit=${limit}&offset=${offset}`
+    const headers = config.endpoints.httpHeaders(config.token_2legged)
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {

@@ -1,4 +1,21 @@
 
+/////////////////////////////////////////////////////////////////////
+// Copyright (c) Autodesk, Inc. All rights reserved
+// Written by Forge Partner Development
+//
+// Permission to use, copy, modify, and distribute this software in
+// object code form for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appears in all copies and
+// that both that copyright notice and the limited warranty and
+// restricted rights notice below appear in all supporting
+// documentation.
+//
+// AUTODESK PROVIDES THIS PROGRAM "AS IS" AND WITH ALL FAULTS.
+// AUTODESK SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTY OF
+// MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK, INC.
+// DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
+// UNINTERRUPTED OR ERROR FREE.
+/////////////////////////////////////////////////////////////////////
 const config = require('../../config');
 const asset_service = require('../services/asset');
 const admin_service = require('../services/admin');
@@ -16,32 +33,31 @@ var Defs = {
 
 } 
 
-async function exportAssets(accountId, projectId,cursorState=null,index=0,isOnePage) {
+async function exportAssets(accountId,projectId,cursorState=null,onePage=false) {
 
   //get cursorState
   var allAssets = []
-  allAssets = await asset_service.getAssets(projectId, cursorState, allAssets,index,isOnePage)
+  allAssets = await asset_service.getAssets(projectId, allAssets,cursorState,onePage)
 
-  
   var allStatusSets = Defs.allStatusSets
   if(allStatusSets==null || allStatusSets.length==0)
-     allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
+     allStatusSets = await asset_service.getAllStatusSets(projectId,allStatusSets)
 
 
   var allCategories = Defs.allCategories
   if(allCategories==null || allCategories.length==0)
-    allCategories = await asset_service.getAllCategories(projectId, null, allCategories)
+    allCategories = await asset_service.getAllCategories(projectId, allCategories)
 
   var allCustomAttdefs = Defs.allCustomAttdefs
   if(allCustomAttdefs==null || allCustomAttdefs.length==0)
-    allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+    allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, allCustomAttdefs)
   
   var allProjectUsers = Defs.allProjectUsers
   if(allProjectUsers==null || allProjectUsers.length==0)
-    allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+    allProjectUsers = await admin_service.getProjectUsers(projectId, 20, 0, allProjectUsers)
   
   var allProjectCompanies = []
-  allProjectCompanies = await admin_service.getProjectCompanies(accountId, projectId, config.limit, 0, allProjectCompanies)
+  allProjectCompanies = await admin_service.getProjectCompanies(accountId, projectId, 20, 0, allProjectCompanies)
 
 
   Defs.allCustomAttdefs = allCustomAttdefs
@@ -195,9 +211,9 @@ async function exportAssets(accountId, projectId,cursorState=null,index=0,isOneP
 async function exportCategory(projectId) {
   
   var allCategories = []
-  allCategories = await asset_service.getAllCategories(projectId, null, allCategories) 
+  allCategories = await asset_service.getAllCategories(projectId, allCategories) 
   var allProjectUsers = []
-  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+  allProjectUsers = await admin_service.getProjectUsers(projectId, 20, 0, allProjectUsers)
    
   //sorting out with customized data  
   allCategories.forEach(async ct => {  
@@ -223,9 +239,9 @@ async function exportCategory(projectId) {
 async function exportCustomAttDef(projectId) {
   
   var allCustomAttdefs = []
-  allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, null, allCustomAttdefs)
+  allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, allCustomAttdefs )
   var allProjectUsers = []
-  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers)
+  allProjectUsers = await admin_service.getProjectUsers(projectId, 20, 0, allProjectUsers)
    
 
   allCustomAttdefs.forEach(async cadef => {  
@@ -261,9 +277,9 @@ async function exportCustomAttDef(projectId) {
 async function exportStatus(projectId) {
   
   var allStatusSets = []
-  allStatusSets = await asset_service.getAllStatusSets(projectId, null, allStatusSets)
+  allStatusSets = await asset_service.getAllStatusSets(projectId, allStatusSets )
   var allProjectUsers = []
-  allProjectUsers = await admin_service.getProjectUsers(projectId, config.limit, 0, allProjectUsers) 
+  allProjectUsers = await admin_service.getProjectUsers(projectId, 20, 0, allProjectUsers) 
   
   var allStatuses = []
   allStatusSets.forEach(async set => { 

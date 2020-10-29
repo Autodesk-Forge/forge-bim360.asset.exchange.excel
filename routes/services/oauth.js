@@ -25,12 +25,12 @@ class OAuth {
         this._session = session;
     }
 
-    getClient(scopes = config.scopes.internal) {
+    getClient(scopes = config.credentials.scopes.internal) {
         const { client_id, client_secret, callback_url } = config.credentials;
         return new AuthClientThreeLegged(client_id, client_secret, callback_url, scopes);
     }
 
-    get2LeggedClient(scopes = config.scopes.internal_2legged){
+    get2LeggedClient(scopes = config.credentials.scopes.internal_2legged){
         const { client_id, client_secret } = config.credentials;
         return new AuthClientTwoLegged(client_id, client_secret, scopes );
     }
@@ -65,8 +65,8 @@ class OAuth {
     // get the internal and public tokens and store them 
     // on the session
     async setCode(code) {
-        const internalTokenClient = this.getClient(config.scopes.internal);
-        const publicTokenClient = this.getClient(config.scopes.public);
+        const internalTokenClient = this.getClient(config.credentials.scopes.internal);
+        const publicTokenClient = this.getClient(config.credentials.scopes.public);
         const internalCredentials = await internalTokenClient.getToken(code);
         const publicCredentials = await publicTokenClient.refreshToken(internalCredentials);
 
@@ -88,8 +88,8 @@ class OAuth {
     }
 
     async _refreshTokens() {
-        let internalTokenClient = this.getClient(config.scopes.internal);
-        let publicTokenClient = this.getClient(config.scopes.public);
+        let internalTokenClient = this.getClient(config.credentials.scopes.internal);
+        let publicTokenClient = this.getClient(config.credentials.scopes.public);
         const internalCredentials = await internalTokenClient.refreshToken({ refresh_token: this._session.refresh_token });
         const publicCredentials = await publicTokenClient.refreshToken(internalCredentials);
 

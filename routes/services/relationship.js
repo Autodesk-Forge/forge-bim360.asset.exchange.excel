@@ -34,18 +34,16 @@ module.exports = {
 
 async function searchRelationships(projectId, assetId, continuationToken, allWithEntities) {
   try {
-    const endpoint =
-      `https://developer.api.autodesk.com/bim360/relationship/v2/containers/${projectId}/relationships:search` +
+    const endpoint = config.endpoints.bim360Relationship.search.format(projectId) +
       `?domain=autodesk-bim360-asset&type=asset&id=${assetId}&continuationToken=${continuationToken}`
 
-    const headers = config.httpHeaders(config.token_3legged)
+    const headers = config.endpoints.httpHeaders(config.credentials.token_3legged)
     const response = await get(endpoint, headers);
 
     if (response.relationships && response.relationships.length > 0) {
       console.log(`getting relationships of project ${projectId}`)
       allWithEntities = allWithEntities.concat(response.relationships);
       if (response.page.continuationToken > 0) {
-        //placeholder for nextUrl...
         await utility.delay(utility.DELAY_MILISECOND)
         return search(projectId, assetId, response.page.continuationToken, allWithEntities);
       }
@@ -67,17 +65,16 @@ async function getIssue(accountId, projectId, issueId) {
   try {
 
     //find container id firstly
-    const endpoint = `${config.ForgeBaseUrl}/project/v1/hubs/b.${accountId}/projects/b.${projectId}`
-    const headers = config.httpHeaders(config.token_3legged)
+    const endpoint = config.endpoints.bim360DM.get_project.format(`b.${accountId}`,`b.${projectId}`)
+    const headers = config.endpoints.httpHeaders(config.credentials.token_3legged)
     const response = await get(endpoint, headers);
     if (response.data &&
       response.data.relationships &&
       response.data.relationships.issues) {
 
       const issueContainerId = response.data.relationships.issues.data.id
-      const endpoint1 =
-        `${config.ForgeBaseUrl}/issues/v1/containers/${issueContainerId}/quality-issues/${issueId}`
-      const headers1 = config.httpHeaders(config.token_3legged)
+      const endpoint1 = config.endpoints.bimField.get_issue.format(issueContainerId,issueId)
+      const headers1 = config.endpoints.httpHeaders(config.credentials.token_3legged)
       const response1 = await get(endpoint1, headers1);
       if (response1.data) {
         return {
@@ -116,17 +113,16 @@ async function getChecklist(accountId, projectId, checklistId) {
   try {
 
     //find container id firstly
-    const endpoint = `${config.ForgeBaseUrl}/project/v1/hubs/b.${accountId}/projects/b.${projectId}`
-    const headers = config.httpHeaders(config.token_3legged)
+    const endpoint = config.endpoints.bim360DM.get_project.format(`b.${accountId}`,`b.${projectId}`)
+    const headers = config.endpoints.httpHeaders(config.credentials.token_3legged)
     const response = await get(endpoint, headers);
     if (response.data &&
       response.data.relationships &&
       response.data.relationships.checklists) {
 
       const cksContainerId = response.data.relationships.checklists.data.id
-      const endpoint1 =
-        `${config.ForgeBaseUrl}/bim360/checklists/v1/containers/${cksContainerId}/instances/${checklistId}`
-      const headers1 = config.httpHeaders(config.token_3legged)
+      const endpoint1 = config.endpoints.bimField.get_checkList.format(`${cksContainerId}`,`${checklistId}`)
+      const headers1 = config.endpoints.httpHeaders(config.credentials.token_3legged)
       const response1 = await get(endpoint1, headers1);
       if (response1.data) {
         return {
@@ -165,15 +161,15 @@ async function getAttachment(accountId, projectId, version_id) {
   try {
 
     //find container id firstly
-    const endpoint = `${config.ForgeBaseUrl}/data/v1/projects/b.${projectId}/items/${version_id}`
-    const headers = config.httpHeaders(config.token_3legged)
+    const endpoint =  config.endpoints.bim360DM.get_item.format(`b.${projectId}`,`${version_id}`)
+    const headers = config.endpoints.httpHeaders(config.credentials.token_3legged)
     const response = await get(endpoint, headers);
     if (response.data &&
       response.data.attributes &&
       response.data.attributes.displayName) { 
 
-      const endpoint1 = `${config.ForgeBaseUrl}/data/v1/projects/b.${projectId}/items/${version_id}/parent`
-      const headers1 = config.httpHeaders(config.token_3legged)
+      const endpoint1 = config.endpoints.bim360DM.get_item_parent.format(`b.${projectId}`,`${version_id}`)
+      const headers1 = config.endpoints.httpHeaders(config.credentials.token_3legged)
       const response1 = await get(endpoint1, headers1);
       if (response1.data) {
         return {
