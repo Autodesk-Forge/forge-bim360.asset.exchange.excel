@@ -68,12 +68,12 @@ async function getProjectUsers(projectId, limit, offset, allUsers) {
 async function getProjectCompanies(accountId,projectId, limit, offset, allCompanies) {
   try {
     const endpoint = config.endpoints.bim360Admin.get_project_companies.format(accountId,projectId) + `?limit=${limit}&offset=${offset}`
-    const headers = config.endpoints.httpHeaders(config.token_2legged)
+    const headers = config.endpoints.httpHeaders(config.credentials.token_2legged)
     const response = await get(endpoint, headers);
 
-    if (response.results && response.results.length > 0) {
-      console.log(`getting project users ${offset} to ${offset + limit}`)
-      allCompanies = allCompanies.concat(response.results);
+    if (response && response.length > 0) {
+      console.log(`getting project companies ${offset} to ${offset + limit}`)
+      allCompanies = allCompanies.concat(response);
       await utility.delay(utility.DELAY_MILISECOND)  
       return getProjectCompanies(accountId,projectId, limit, allCompanies.length, allCompanies);
     } else {

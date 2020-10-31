@@ -23,8 +23,10 @@ const server = require('http').Server(app);
 
 const PORT = process.env.PORT || 3000;
 const config = require('./config');
-if (config.credentials.client_id == null || config.credentials.client_secret == null) {
-    console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.');
+if (config.credentials.client_id == null || config.credentials.client_id == '' ||
+    config.credentials.client_secret == null || config.credentials.client_secret == ''||
+    config.credentials.callback_url == null || config.credentials.callback_url == '') {
+    console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET or FORGE_CALLBACK_URL in env. variables.');
     return;
 } 
 const cookieParser = require('cookie-parser');
@@ -51,6 +53,7 @@ app.use((err, req, res, next) => {
 
 app.set('port', process.env.PORT || 3000);
 
+//socket for server notifying client side
 global.MyApp = {
     SocketIo : require('socket.io')(server)
   };

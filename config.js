@@ -52,7 +52,10 @@ const endpoints = {
         get_checkList:`${credentials.ForgeBaseUrl}/bim360/checklists/v1/containers/{0}/instances/{1}`
     },
     bim360Asset:{
-        get_assets:`${credentials.ForgeBaseUrl}/bim360/assets/v1/projects/{0}/assets`,
+        //retire version 1
+        //get_assets:`${credentials.ForgeBaseUrl}/bim360/assets/v1/projects/{0}/assets`,
+        get_assets:`${credentials.ForgeBaseUrl}/bim360/assets/v2/projects/{0}/assets`,
+
         get_status_sets:`${credentials.ForgeBaseUrl}/bim360/assets/v1/projects/{0}/status-step-sets`,
 
         get_status:`${credentials.ForgeBaseUrl}/bim360/assets/v1/projects/{0}/asset-statuses`,

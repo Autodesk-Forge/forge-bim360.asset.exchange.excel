@@ -19,8 +19,8 @@ const SocketEnum = {
   ASSET_TOPIC: 'asset topic',
   EXPORT_ONEPAGE_DONE:'export one page done',
   EXPORT_DONE: 'export done' ,
-  IMPORT_DONE:'import done',
-  DELETE_DONE:'delete done' 
+  IMPORT_ASSETS_DONE:'import assets done',
+  DELETE_ASSETS_DONE:'delete assets done' 
 };  
   
 function socketNotify(topic,message,data){

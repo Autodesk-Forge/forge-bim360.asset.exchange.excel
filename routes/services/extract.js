@@ -90,22 +90,17 @@ async function exportAssets(accountId,projectId,cursorState=null,onePage=false) 
     cadef.createdBy = find ? find.name : cadef.createdBy
     switch(cadef.dataType){
       case 'text':
-        //do nothing 
         cadef.enumValues = '<none>' 
         break;
       case 'numeric':
-         //do nothing
          cadef.enumValues = '<none>' 
         break;
       case 'date':
-        //do nothing 
         cadef.enumValues = '<none>'
         break;
       case 'select':
-        //do nothing 
         break;
       case 'multi_select':
-        //do nothing  
         break;
     }
   });
@@ -145,10 +140,30 @@ async function exportAssets(accountId,projectId,cursorState=null,onePage=false) 
     a.statusId = a.statusId
     a.status = find ? find.label : '<invalid>'  
 
+    find = Defs.allProjectCompanies.find(i => i.id == a.companyId)
+    a.companyId = a.companyId
+    a.company = find ? find.name : '<invalid>'
+
     //custom attributes [name] must be unique, so do not worry duplicated name
     for (const ca in a.customAttributes) {
       find = Defs.allCustomAttdefs.find(i => i.name == ca)
-      a[ca] = find?a.customAttributes[ca]:''
+      if(find.dataType == 'select'){
+          find = find.values.find(i=>i.id == a.customAttributes[ca])
+          a[ca] = find?find.displayName:'' 
+      }
+      else if(find.dataType == 'multi_select'){
+          a[ca] = '['
+          const caDef = find
+          a.customAttributes[ca].forEach(async (e)=>{
+            find = caDef.values.find(i=>i.id == e)
+            a[ca] += find.displayName + ',' 
+          })
+          a[ca] += ']'
+      }else{
+        // direct values with get assets
+        a[ca] = find?a.customAttributes[ca]:''
+      }
+      
     } 
 
     //how find the relationships of the asset 

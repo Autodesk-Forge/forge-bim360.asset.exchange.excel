@@ -28,16 +28,17 @@ class AssetView {
           isRaw ? { field: 'categoryId', title: "category", align: 'left', halign:'center',color:'red'} : { field: 'category', title: "category", align: 'center' },
           isRaw ? { field: 'statusId', title: "status", align: 'left', halign:'center' } : { field: 'status', title: "status", align: 'center' },
           { field: 'barcode', title: "barcode", align: 'center' },
-          { field: 'serialNumber', title: "serialNumber", align: 'left' },
-          { field: 'installationDate', title: "installationDate", align: 'center' },
-          { field: 'installedBy', title: "installedBy", align: 'center' },
-          { field: 'warrantyStartDate', title: "warrantyStartDate", align: 'center' },
-          { field: 'warrantyEndDate', title: "warrantyEndDate", align: 'center' },
-          { field: 'expectedLifeYears', title: "expectedLifeYears", align: 'center' },
-          { field: 'manufacturer', title: "manufacturer", align: 'center' },
+          // { field: 'serialNumber', title: "serialNumber", align: 'left' },
+          // { field: 'installationDate', title: "installationDate", align: 'center' },
+          // { field: 'installedBy', title: "installedBy", align: 'center' },
+          // { field: 'warrantyStartDate', title: "warrantyStartDate", align: 'center' },
+          // { field: 'warrantyEndDate', title: "warrantyEndDate", align: 'center' },
+          // { field: 'expectedLifeYears', title: "expectedLifeYears", align: 'center' },
+          // { field: 'manufacturer', title: "manufacturer", align: 'center' },
           { field: 'locationId', title: "locationId", align: 'left' },  
           { field: 'createdAt', title: "createdAt", align: 'center' },
           isRaw ? { field: 'createdById', title: "createdById", align: 'center' } : { field: 'createdBy', title: "createdBy", align: 'left' },
+          isRaw ? { field: 'companyId', title: "companyId", align: 'center' } : { field: 'company', title: "company", align: 'left' },
           isRaw ? { field: 'issues', title: "issues", align: 'left', halign:'center',formatter: this.parent.rawFormatter, width: 180 } : { field: 'issues', title: "issues", align: 'left', halign:'center', formatter: this.parent.humanIssueFormatter, width: 180 },
           isRaw ? { field: 'checklists', title: "checklists", align: 'left', halign:'center', formatter: this.parent.rawFormatter, width: 20 } : { field: 'checklists', title: "checklists", align: 'left', halign:'center', formatter: this.parent.humanChecklistFormatter, width: 20 },
           isRaw ? { field: 'attachments', title: "attachments", align: 'left', halign:'center', formatter: this.parent.rawFormatter, width: 10 } : { field: 'attachments', title: "attachments", align: 'left', halign:'center', formatter: this.parent.humanAttachmentFormatter, width: 10 }
@@ -46,7 +47,8 @@ class AssetView {
 
       categoryTable: function (isRaw) {
         return [
-          { field: 'id', title: "id", align: 'center' },  //this raw property is a human readable string already
+          //this raw property is a human readable string already
+          { field: 'id', title: "id", align: 'center' },  
 
           { field: 'name', title: "name", align: 'center' },
           { field: 'description', title: "description", align: 'left' },

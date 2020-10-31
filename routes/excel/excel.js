@@ -9,8 +9,8 @@ const utility = require('../utility');
 
 module.exports = {
     _export: _export,
-    _import: _import,
-    _delete: _delete
+    _importAssets: _importAssets,
+    _deleteAssets: _deleteAssets
 };
 
 //each element of the array will export one sheet in the same Excel file
@@ -103,112 +103,80 @@ async function _export(exportName, dataArray) {
     } 
 }
 
-async function _import(projectId, buffer) {
+async function _importAssets(projectId, buffer) {
+
+    var results = {assets:{total:'N/A',success:'N/A',fail:'N/A'}} 
 
     try { 
-        var allStatusSets = []
-        allStatusSets = await asset_service.getAllStatusSets(projectId, allStatusSets)
-        var allStatuses = []
-        allStatusSets.forEach(async set => {
-            const setName = set.name
-            const statuses = set.values
-            statuses.forEach(async st => {
-                st.set = setName
-                allStatuses.push(st)
-            })
-        });
-        var allCategories = []
-        allCategories = await asset_service.getAllCategories(projectId, allCategories)
+
+        //since the exported excel should have columns with status id and category id
+        //we do not need to dump status and category
+
+        //but we need to dump custom attributes defs.
         var allCustomAttdefs = []
         allCustomAttdefs = await asset_service.getAllCustomAttdefs(projectId, allCustomAttdefs)
-
-        let results = {
-            assets: { total: 0, success: 0, fail: 0 },
-            categories: { total: 0, success: 0, fail: 0 },
-            customAttDefs: { total: 0, success: 0, fail: 0 },
-            statuses: { total: 0, success: 0, fail: 0 }
-        };
 
         console.log('Parsing XLSX spreadsheet.');
         const workbook = new excelJS.Workbook();
         await workbook.xlsx.load(buffer);
-        const assets_worksheet = workbook.getWorksheet('assets');
-        // const categories_worksheet = workbook.getWorksheet('categories');
-        // const customAttDefs_worksheet = workbook.getWorksheet('customAttDefs');
-        // const statuses_worksheet = workbook.getWorksheet('statuses'); 
-
-        var jobsRes = await importAssets(projectId, assets_worksheet, allCategories, allStatuses, allCustomAttdefs)
-        var count = {};
-        jobsRes.forEach(function (i) { count[i] = (count[i] || 0) + 1; });
-        results.assets.total = jobsRes.length
-        results.assets.success = count.true ? count.true : 0
-        results.assets.fail = count.false ? count.false : 0
-
-        return results
-
+        const assets_worksheet = workbook.getWorksheet('assets'); 
+        const jobsRes = await importAssets(projectId, assets_worksheet, allCustomAttdefs)
+        results.assets = jobsRes 
+        return results  
     } catch (e) {
-        console.error(`import excel exception ${e}`)
-        return { importJob: false }
+        console.error(`import assets exception ${e}`)
+        return results
     }
 
 }
 
 
-async function importAssets(projectId, assets_worksheet, allCategories, allStatuses, allCustomAttdefs) {
+async function importAssets(projectId, assets_worksheet, allCustomAttdefs) {
+    
+    //note the difference between payloads schemas of batch create and batch patch.
     var createArray = []
-    var patchArray = {}
+    var patchArray = {} 
 
     assets_worksheet.eachRow((row, rowNumber) => { 
         if (rowNumber === 1) {
             return; // Skip the header row
         } 
         try {
+            //the index depends on how the columns are defined
+            //see columnDefs.js
             const id = row.values[1]
-
-            //find category and status by name
-            //can also use the ids directly. excel data contains both name and ids
-            const cat = allCategories.find(i => i.name == row.values[4])
-            const st = allStatuses.find(i => i.label == row.values[6])
+            const clientAssetId = row.values[2]
+            const categoryId = row.values[3]
+            const statusId = row.values[5] 
 
             const body = {
-                clientAssetId: row.values[2],
-                categoryId: cat ? cat.id : allCategories[0].id,
-                statusId: st ? st.id : allStatusSets[0].id,
-
-                //from v2, these standard attributes will be moved to custom attributes
-
-                // description: row.values[7],
-                // barcode: row.values[8],
-                // serialNumber: row.values[9],
-                // specSection: row.values[10],
-                // purchaseOrder: row.values[11],
-                // purchaseDate: row.values[12],
-                // installedBy: row.values[13],
-                // installationDate: row.values[14],
-                // warrantyStartDate: row.values[15],
-                // warrantyEndDate: row.values[16],
-                // expectedLifeYears: row.values[17],
-                // manufacturer: row.values[18],
-                // model: row.values[19]
-            }
-            //skip some uneditable columns
+                //required attributes
+                clientAssetId: clientAssetId,
+                categoryId: categoryId,
+                statusId: statusId, 
+                //from v2, some standard attributes will be moved to custom attributes
+                //so it will assume these definitions in custom attributes have been created. 
+                //...
+            } 
+            //starting to input values of custom attributes  
             var i = 0
             body.customAttributes = {}
 
-            //we hard-coded the start index of custom attributes
-            allCustomAttdefs.forEach(async c => {
-                if (row.values[29 + i] != undefined) {
-                    if (c.dataType == 'multi_select')
-                        body.customAttributes[c.name] = JSON.parse(row.values[29 + i])
-                    else if (c.dataType == 'numeric')
-                        body.customAttributes[c.name] = Number(row.values[29 + i]).toString()
-
-                    else
-                        body.customAttributes[c.name] = row.values[29 + i]
-                }
-                i++
-            })
-
+            //hard-coded the start index of custom attributes
+            //depending on how the excel columns are arranged. 
+            // const Hard_Coded_Start_Index = 20
+            // allCustomAttdefs.forEach(async c => {
+            //     if (row.values[Hard_Coded_Start_Index + i] != undefined) {
+            //         if (c.dataType == 'multi_select')
+            //             body.customAttributes[c.name] = JSON.parse(row.values[Hard_Coded_Start_Index + i])
+            //         else if (c.dataType == 'numeric')
+            //             body.customAttributes[c.name] = Number(row.values[Hard_Coded_Start_Index + i]).toString()
+            //         else
+            //             body.customAttributes[c.name] = row.values[Hard_Coded_Start_Index + i]
+            //     }
+            //     i++
+            // }) 
+            //if it is to create new asset or patch the old asset
             id? patchArray[id] = body:createArray.push(body)
         }
         catch (err) {
@@ -216,70 +184,79 @@ async function importAssets(projectId, assets_worksheet, allCategories, allStatu
         }
     })
 
-    console.log('starting to create new assets...') 
-
+    console.log(`starting to create new assets... ${createArray.length}`)  
     //split to 100 per each payload
     const create_paloads = createArray.chunk_inefficient(100) 
     var promiseCreator = async (payload) => {
         await utility.delay(utility.DELAY_MILISECOND)
         try{
             const createRes = await asset_service.createAsset_Batch(projectId, payload)
-            return payload.length
-        }catch(e){
-            console.log(`create 100 assets exception`) 
+            if(createRes) {
+                console.log(`create ${payload.length} assets succeeded`) 
+                return payload.length
+            }
+            else{
+                // currently, if any asset data is incorrect
+                // batch create will refuse to handle all assets in the payload
+                //so  no assets will be created.
+                console.log(`create ${payload.length} assets failed`) 
+                return 0 
+            }        }catch(e){
+            console.log(`create ${payload.length} assets exception`) 
             return 0
         }
     }
     const res = await asyncPool(2, create_paloads, promiseCreator);
+
     
-    console.log('end to create new assets...') 
-
-
-    const patch_paloads = patchArray //.chunk_inefficient(100) 
+    console.log(`end to patch old assets...${patchArray.length}`)  
+    const patch_paloads = patchArray   
     promiseCreator = async (payload) => {
         await utility.delay(utility.DELAY_MILISECOND)
         try{
             const patchRes = await asset_service.patchAsset_Batch(projectId, payload)
-            return payload.length
+            if(patchRes) {
+                console.log(`patch ${payload.length} assets succeeded`) 
+                return payload.length
+            }
+            else{
+                // currently, if any asset data is incorrect
+                // batch patch will refuse to handle all assets in the payload
+                //so no assets will be patched.
+                console.log(`patch ${payload.length} assets failed`) 
+                return 0 
+            }
         }catch(e){
-            console.log(`patch 100 assets exception`) 
+            console.log(`patch ${payload.length} assets exception`) 
             return 0
         }
     }
     res = await asyncPool(2, patch_paloads, promiseCreator);
-    
     console.log('end to patch old  assets...')  
-
-
 }
  
 
-async function _delete(projectId, buffer) {
+async function _deleteAssets(projectId, buffer) {
 
-    try {  
+    var results = {assets:{total:'N/A',success:'N/A',fail:'N/A'}} 
 
+    try {   
         console.log('Parsing XLSX spreadsheet.');
         const workbook = new excelJS.Workbook();
         await workbook.xlsx.load(buffer);
         const assets_worksheet = workbook.getWorksheet('assets');
 
-        var jobsRes = await deleteAssets(projectId, assets_worksheet)
-        // var count = {};
-        // jobsRes.forEach(function (i) { count[i] = (count[i] || 0) + 1; });
-        // results.assets.total = jobsRes.length
-        // results.assets.success = count.true ? count.true : 0
-        // results.assets.fail = count.false ? count.false : 0
+        var jobsRes = await deleteAssets(projectId, assets_worksheet) 
+        results.assets = jobsRes
         return results
     } catch (e) {
         console.error(`delete excel exception ${e}`)
-        return []
-    }
-
+        return results
+    } 
 }
 
-
+//batch delete assets
 async function deleteAssets(projectId, assets_worksheet) {
-    //create/update assets 
     var ids = []
     assets_worksheet.eachRow((row, rowNumber) => { 
         if (rowNumber === 1) {
@@ -297,17 +274,29 @@ async function deleteAssets(projectId, assets_worksheet) {
     //split to 100 per each payload
     const paload_array = ids.chunk_inefficient(100) 
     const effectiveConcurrency = Math.min(2, paload_array.length);
-    var promiseCreator = async (ids) => {
+    var promiseCreator = async (each_ids) => {
         await utility.delay(utility.DELAY_MILISECOND)
         try{
-            const deleteRes = await asset_service.deleteAsset_Batch(projectId, ids)
-            return ids.length
+            const deleteRes = await asset_service.deleteAsset_Batch(projectId, each_ids)
+            if(deleteRes) {
+                console.log(`delete ${ids.length} assets succeeded`) 
+                return each_ids.length
+            }
+            else{
+                // currently, if any asset id is incorrect
+                //batch delete will refuse to handle all assets in the payload
+                //so no assets are deleted.
+                console.log(`delete ${each_ids.length} assets failed`) 
+                return 0 
+            }
         }catch(e){
-            console.log(`delete 100 assets exception`) 
+            console.error(`delete ${each_ids.length} assets exception`) 
             return 0
         }
     }
     const res = await asyncPool(effectiveConcurrency, paload_array, promiseCreator); 
+    //var res = {total:ids.length,success:,fail:}
+    return res
 }
 
 

@@ -192,13 +192,13 @@ router.get('/asset/downloadExcel/:projectName', async (req, res) => {
 
 
 
-router.post('/asset/importExcel/:projectId', upload.single('xlsx'), async function (req, res) {
+router.post('/asset/importAssets/:projectId', upload.single('xlsx'), async function (req, res) {
   const { projectId } = req.params;
   const xlsx = fs.readFileSync(req.file.path);
   try {
 
     res.status(200).end()
-    const result = await _excel._import(projectId, xlsx)
+    const result = await _excel._importAssets(projectId, xlsx)
 
     utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
       utility.SocketEnum.IMPORT_DONE,
@@ -210,14 +210,14 @@ router.post('/asset/importExcel/:projectId', upload.single('xlsx'), async functi
 
 
 
-router.post('/asset/delete/:projectId', upload.single('xlsx'), async function (req, res) {
+router.post('/asset/deleteAssets/:projectId', upload.single('xlsx'), async function (req, res) {
 
   const { projectId } = req.params;
   const xlsx = fs.readFileSync(req.file.path);
   try {
 
     res.status(200).end()
-    const result = await _excel._delete(projectId, xlsx)
+    const result = await _excel._deleteAssets(projectId, xlsx)
 
     utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
       utility.SocketEnum.DELETE_DONE,

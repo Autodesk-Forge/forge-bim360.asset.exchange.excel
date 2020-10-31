@@ -34,8 +34,8 @@ $(document).ready(function () {
         if (files.length === 1) {
             const formData = new FormData();
             formData.append('xlsx', files[0]);
-            const endpoint = batchjob=='import'?`/api/forge/asset/importExcel/${projectId_without_b}`:
-                                                `/api/forge/asset/delete/${projectId_without_b}`;
+            const endpoint = batchjob=='import'?`/api/forge/asset/importAssets/${projectId_without_b}`:
+                                                `/api/forge/asset/deleteAssets/${projectId_without_b}`;
 
             const response = await fetch(endpoint, { method: 'POST', body: formData});
             if (response.ok) {

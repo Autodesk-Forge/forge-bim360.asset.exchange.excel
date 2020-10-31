@@ -60,7 +60,7 @@ async function getAllCategories(projectId, allCategories,cursorState=null) {
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
-      console.log(`getting assets ${projectId} categories`)
+      console.log(`getting assets categories of project  ${projectId}`)
       allCategories = allCategories.concat(response.results);
       if (response.pagination.nextUrl != null) {
         return getAllCategories(projectId, allCategories,response.pagination.cursorState);
@@ -89,7 +89,7 @@ async function getAllCustomAttdefs(projectId, allCustomAttdefs,cursorState=null)
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
-      console.log(`getting assets ${projectId} custom attributes`)
+      console.log(`getting assets custom attributes of project ${projectId} `)
       allCustomAttdefs = allCustomAttdefs.concat(response.results);
       if (response.pagination.nextUrl != null) {
         return getAllCustomAttdefs(projectId, allCustomAttdefs,cursorState);
@@ -119,7 +119,7 @@ async function getAllStatusSets(projectId, allStatusSets,cursorState=null) {
     const response = await get(endpoint, headers);
 
     if (response.results && response.results.length > 0) {
-      console.log(`getting assets ${projectId} status`)
+      console.log(`getting assets status of project  ${projectId} `)
       allStatusSets = allStatusSets.concat(response.results);
       if (response.pagination.nextUrl != null) { 
         return getAllStatusSets(projectId, allStatusSets,cursorState);
@@ -209,7 +209,7 @@ async function deleteAsset_Batch(projectId, ids) {
     await utility.delay(utility.DELAY_MILISECOND)
     const body = {ids:ids}
     const response = await post(endpoint, headers, JSON.stringify(body)) 
-    return true
+    return true   
   } catch (e) {
     console.error(`deleteAsset_Batch failed: ${e}`)
     return false

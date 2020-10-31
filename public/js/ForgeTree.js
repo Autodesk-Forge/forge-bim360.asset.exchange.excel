@@ -138,7 +138,7 @@ function prepareUserHubsTree() {
         await asset_view.getStatus(projectId_without_b)
 
         //get first page of asset (max 25 records by  default)
-        //await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName,asset_view._pageLimit,asset_view._pageOffset)
+        await asset_view.getAssets(accountId_without_b,projectId_without_b,projectName,asset_view._pageLimit,asset_view._pageOffset)
         
         //wait the result at socket modules....
 

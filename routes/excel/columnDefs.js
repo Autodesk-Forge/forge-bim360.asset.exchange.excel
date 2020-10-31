@@ -23,7 +23,11 @@ const attachmentListFormat = (list) => {
 };
  
 
-const assetsColumns = [
+//columns defs for version 1 of get assets. prereserved for reference
+//in version 2, some standard attributes will be moved to custom attributes
+//so it will assume these definitions in custom attributes have been created. 
+
+const assetsColumns_forV1 = [
   { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
 
    { id: 'clientAssetId', propertyName: 'clientAssetId', columnTitle: 'clientAssetId', columnWidth: 8, locked: true },
@@ -33,6 +37,7 @@ const assetsColumns = [
    { id: 'status', propertyName: 'status', columnTitle: 'status', columnWidth: 6, locked: false },
    { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
    { id: 'barcode', propertyName: 'barcode', columnTitle: 'barcode', columnWidth: 8, locked: false },
+   
    { id: 'serialNumber', propertyName: 'serialNumber', columnTitle: 'serialNumber', columnWidth: 8, locked: false },
    { id: 'specSection', propertyName: 'specSection', columnTitle: 'specSection', columnWidth: 6, locked: false },
    { id: 'purchaseOrder', propertyName: 'purchaseOrder', columnTitle: 'purchaseOrder', columnWidth: 6, locked: false },
@@ -51,6 +56,34 @@ const assetsColumns = [
    { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 4, locked: false },
    { id: 'createdAt', propertyName: 'createdAt', columnTitle: 'createdAt', columnWidth: 6, locked: false },
    //sorted columns with readable string
+   { id: 'createdById', propertyName: 'createdById', columnTitle: 'createdById', columnWidth: 6, locked: true },
+   { id: 'createdBy', propertyName: 'createdBy', columnTitle: 'createdBy', columnWidth: 6, locked: true },
+   //issue,checklist,attachment list. put them together as string because Excel does not support embeded array
+   { id: 'issues', propertyName: 'issues', columnTitle: 'issues', columnWidth: 8, locked: false,format: issueListFormat },
+   { id: 'checklists', propertyName: 'checklists', columnTitle: 'checklists', columnWidth: 8, locked: false,format: checklistListFormat },
+   { id: 'attachments', propertyName: 'attachments', columnTitle: 'attachments', columnWidth: 8, locked: false,format: attachmentListFormat },
+
+   //dynamic columns: custom attributes. make them flat view. depending on how many ca definitions
+   //......
+
+];
+
+//columns defs for version 2 of get assets
+const assetsColumns = [
+   { id: 'id', propertyName: 'id', columnTitle: 'id', columnWidth: 8, locked: true },
+   { id: 'clientAssetId', propertyName: 'clientAssetId', columnTitle: 'clientAssetId', columnWidth: 8, locked: true },
+   { id: 'categoryId', propertyName: 'categoryId', columnTitle: 'categoryId', columnWidth: 6, locked: false },
+   { id: 'category', propertyName: 'category', columnTitle: 'category', columnWidth: 6, locked: false },
+   { id: 'statusId', propertyName: 'statusId', columnTitle: 'statusId', columnWidth: 6, locked: false },
+   { id: 'status', propertyName: 'status', columnTitle: 'status', columnWidth: 6, locked: false },
+   { id: 'companyId', propertyName: 'companyId', columnTitle: 'companyId', columnWidth: 6, locked: false },
+   { id: 'company', propertyName: 'company', columnTitle: 'company', columnWidth: 6, locked: false },
+   { id: 'description', propertyName: 'description', columnTitle: 'description', columnWidth: 16, locked: false },
+   { id: 'barcode', propertyName: 'barcode', columnTitle: 'barcode', columnWidth: 8, locked: false },
+   { id: 'locationId', propertyName: 'locationId', columnTitle: 'locationId', columnWidth: 8, locked: false },
+   { id: 'isActive', propertyName: 'isActive', columnTitle: 'isActive', columnWidth: 6, locked: false },
+   { id: 'version', propertyName: 'version', columnTitle: 'version', columnWidth: 4, locked: false },
+   { id: 'createdAt', propertyName: 'createdAt', columnTitle: 'createdAt', columnWidth: 6, locked: false },
    { id: 'createdById', propertyName: 'createdById', columnTitle: 'createdById', columnWidth: 6, locked: true },
    { id: 'createdBy', propertyName: 'createdBy', columnTitle: 'createdBy', columnWidth: 6, locked: true },
    //issue,checklist,attachment list. put them together as string because Excel does not support embeded array
