@@ -29,7 +29,7 @@ This sample is implemented based on Node.js version of [Learn Forge Tutorial](ht
 ![thumbnail](/help/main.png)  
 
 ## Demonstration
-[](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0 "Display and exchange BIM 360 asset data with Excel file")
+[Demo Video](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0 "Display and exchange BIM 360 asset data with Excel file")
 
 
 ## Live Demo
