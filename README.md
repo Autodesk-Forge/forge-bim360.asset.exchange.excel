@@ -6,8 +6,8 @@
 [![Data-Management](https://img.shields.io/badge/Data%20Management-v1-green.svg)](http://developer.autodesk.com/)
 
 [![BIM-360 API](https://img.shields.io/badge/BIM%20360-api-green.svg)](https://forge.autodesk.com/en/docs/bim360/v1/reference/http/)
-[![Asset Management API](https://img.shields.io/badge/Asset%20Management-api-v1%20beta-v2%20beta-green.svg)](http://developer.autodesk.com/)
-[![Relationship API](https://img.shields.io/badge/relationship-api-v2-green.svg)](https://forge.autodesk.com/en/docs/bim360/v1/reference/http/relationship-service-v2-search-relationships-GET/)
+[![Asset API](https://img.shields.io/badge/Asset%20API-v1--v2-yellowgreen)](http://developer.autodesk.com/)
+[![Relationship API](https://img.shields.io/badge/Relationship%20API-v2-lightgrey)](https://forge.autodesk.com/en/docs/bim360/v1/reference/http/relationship-service-v2-search-relationships-GET/)
 
 
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
