@@ -201,7 +201,7 @@ router.post('/asset/importAssets/:projectId', upload.single('xlsx'), async funct
     const result = await _excel._importAssets(projectId, xlsx)
 
     utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
-      utility.SocketEnum.IMPORT_DONE,
+      utility.SocketEnum.IMPORT_ASSETS_DONE,
       { result: result, projectId: projectId })
   } catch (err) {
     res.status(500).end()
@@ -220,7 +220,7 @@ router.post('/asset/deleteAssets/:projectId', upload.single('xlsx'), async funct
     const result = await _excel._deleteAssets(projectId, xlsx)
 
     utility.socketNotify(utility.SocketEnum.ASSET_TOPIC,
-      utility.SocketEnum.DELETE_DONE,
+      utility.SocketEnum.DELETE_ASSETS_DONE,
       { result: result, projectId: projectId })
   } catch (err) {
     res.status(500).end()

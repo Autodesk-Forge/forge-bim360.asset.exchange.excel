@@ -37,7 +37,7 @@ socketio.on(SocketEnum.ASSET_TOPIC, async (d) => {
         $('.importInProgress').hide(); 
 
         break;
-    case SocketEnum.IMPORT_DONE: 
+    case SocketEnum.IMPORT_ASSETS_DONE: 
       var totalInfo = `Asset Total: ${jsonData.data.result.assets.total} | Success: ${jsonData.data.result.assets.success} |  Fail: ${jsonData.data.result.assets.fail}\n`
       $.notify(totalInfo, 'warn');
 
@@ -45,7 +45,7 @@ socketio.on(SocketEnum.ASSET_TOPIC, async (d) => {
       $('.importInProgress').hide();  
       console.log('import done')
       break;
-    case SocketEnum.DELETE_DONE: 
+    case SocketEnum.DELETE_ASSETS_DONE: 
       var totalInfo = `Asset Total: ${jsonData.data.result.assets.total} | Success: ${jsonData.data.result.assets.success} |  Fail: ${jsonData.data.result.assets.fail}\n`
       $.notify(totalInfo, 'warn'); 
       

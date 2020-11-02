@@ -4,7 +4,7 @@ const excelJS = require('exceljs');
 const columnDefs = require('./columnDefs');
 const asset_service = require('../services/asset');
 const asyncPool = require('tiny-async-pool')
-
+const { chunk } =  require('lodash');
 const utility = require('../utility'); 
 
 module.exports = {
@@ -133,9 +133,11 @@ async function _importAssets(projectId, buffer) {
 
 async function importAssets(projectId, assets_worksheet, allCustomAttdefs) {
     
+    var results = {assets:{total:'N/A',success:'N/A',fail:'N/A'}} 
+
     //note the difference between payloads schemas of batch create and batch patch.
     var createArray = []
-    var patchArray = {} 
+    var patchDic= {} 
 
     assets_worksheet.eachRow((row, rowNumber) => { 
         if (rowNumber === 1) {
@@ -164,20 +166,36 @@ async function importAssets(projectId, assets_worksheet, allCustomAttdefs) {
 
             //hard-coded the start index of custom attributes
             //depending on how the excel columns are arranged. 
-            // const Hard_Coded_Start_Index = 20
-            // allCustomAttdefs.forEach(async c => {
-            //     if (row.values[Hard_Coded_Start_Index + i] != undefined) {
-            //         if (c.dataType == 'multi_select')
-            //             body.customAttributes[c.name] = JSON.parse(row.values[Hard_Coded_Start_Index + i])
-            //         else if (c.dataType == 'numeric')
-            //             body.customAttributes[c.name] = Number(row.values[Hard_Coded_Start_Index + i]).toString()
-            //         else
-            //             body.customAttributes[c.name] = row.values[Hard_Coded_Start_Index + i]
-            //     }
-            //     i++
-            // }) 
+            const Hard_Coded_Start_Index = 20
+            allCustomAttdefs.forEach(async def => {
+                if (row.values[Hard_Coded_Start_Index + i] != undefined) {
+                    if (def.dataType == 'select'){ 
+                         //find id of the option
+                         const option_value = row.values[Hard_Coded_Start_Index + i]
+                         const find = def.values.find(i=>i.displayName == option_value)
+                         const option_id = find?find.id:'<invalid>'
+                         body.customAttributes[def.name] =  option_id
+                    }
+                    else if (def.dataType == 'multi_select'){
+                        //find id of the options 
+                        const option_values = JSON.parse(row.values[Hard_Coded_Start_Index + i])
+                        var option_ids = []
+                        option_values.forEach(async (o)=>{
+                            const find = def.values.find(i=>i.displayName == o)
+                            const option_id = find?find.id:'<invalid>' 
+                            option_ids.push(option_id)
+                        })  
+                        body.customAttributes[def.name] = option_ids
+                    }
+                    else if (def.dataType == 'numeric')
+                        body.customAttributes[def.name] = Number(row.values[Hard_Coded_Start_Index + i]).toString()
+                    else
+                        body.customAttributes[def.name] = row.values[Hard_Coded_Start_Index + i]
+                }
+                i++
+            }) 
             //if it is to create new asset or patch the old asset
-            id? patchArray[id] = body:createArray.push(body)
+            id? patchDic[id] = body:createArray.push(body)
         }
         catch (err) {
             console.error(`Error when parsing spreadsheet row of assets: ${err}`, rowNumber);
@@ -206,24 +224,25 @@ async function importAssets(projectId, assets_worksheet, allCustomAttdefs) {
             return 0
         }
     }
-    const res = await asyncPool(2, create_paloads, promiseCreator);
+    var res = await asyncPool(2, create_paloads, promiseCreator); 
 
-    
-    console.log(`end to patch old assets...${patchArray.length}`)  
-    const patch_paloads = patchArray   
+    console.log(`end to patch old assets...${patchDic.length}`) 
+    var patch_paloads = [];
+    for ( const cols = Object.entries( patchDic ); cols.length; )
+        patch_paloads.push( cols.splice(0, 100).reduce( (o,[k,v])=>(o[k]=v,o), {}));
     promiseCreator = async (payload) => {
         await utility.delay(utility.DELAY_MILISECOND)
         try{
             const patchRes = await asset_service.patchAsset_Batch(projectId, payload)
             if(patchRes) {
-                console.log(`patch ${payload.length} assets succeeded`) 
-                return payload.length
+                console.log(`patch ${Object.keys(payload).length} assets succeeded`) 
+                return Object.keys(payload).length
             }
             else{
                 // currently, if any asset data is incorrect
                 // batch patch will refuse to handle all assets in the payload
                 //so no assets will be patched.
-                console.log(`patch ${payload.length} assets failed`) 
+                console.log(`patch ${Object.keys(payload).length} assets failed`) 
                 return 0 
             }
         }catch(e){
@@ -231,8 +250,15 @@ async function importAssets(projectId, assets_worksheet, allCustomAttdefs) {
             return 0
         }
     }
-    res = await asyncPool(2, patch_paloads, promiseCreator);
+    res = res?res.concat(await asyncPool(2, patch_paloads, promiseCreator)):
+                         await asyncPool(2, patch_paloads, promiseCreator);
     console.log('end to patch old  assets...')  
+
+    const total = createArray.length + Object.keys(patchDic).length 
+    const success = res?res.reduce((a, b) => a + b, 0):0
+    result = {total:total,success:success,fail:total -success }
+
+    return result
 }
  
 
@@ -257,6 +283,9 @@ async function _deleteAssets(projectId, buffer) {
 
 //batch delete assets
 async function deleteAssets(projectId, assets_worksheet) {
+
+    var result = {total:'N/A',success:'N/A',fail:'N/A'}
+
     var ids = []
     assets_worksheet.eachRow((row, rowNumber) => { 
         if (rowNumber === 1) {
@@ -295,8 +324,9 @@ async function deleteAssets(projectId, assets_worksheet) {
         }
     }
     const res = await asyncPool(effectiveConcurrency, paload_array, promiseCreator); 
-    //var res = {total:ids.length,success:,fail:}
-    return res
+    const success = res.reduce((a, b) => a + b, 0)
+    result = {total:ids.length,success:success,fail:ids.length -success }
+    return result
 }
 
 

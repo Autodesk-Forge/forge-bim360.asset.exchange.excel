@@ -152,13 +152,13 @@ async function exportAssets(accountId,projectId,cursorState=null,onePage=false) 
           a[ca] = find?find.displayName:'' 
       }
       else if(find.dataType == 'multi_select'){
-          a[ca] = '['
+          var options = []
           const caDef = find
           a.customAttributes[ca].forEach(async (e)=>{
             find = caDef.values.find(i=>i.id == e)
-            a[ca] += find.displayName + ',' 
-          })
-          a[ca] += ']'
+            options.push(find.displayName)
+           })
+          a[ca]  =  JSON.stringify(options)
       }else{
         // direct values with get assets
         a[ca] = find?a.customAttributes[ca]:''
