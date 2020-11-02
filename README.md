@@ -29,7 +29,7 @@ This sample is implemented based on Node.js version of [Learn Forge Tutorial](ht
 ![thumbnail](/help/main.png)  
 
 ## Demonstration
-[![https://youtu.be/X6mFX_yqhTI]()](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0 "Display and exchange BIM 360 asset data with Excel file")
+[](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0 "Display and exchange BIM 360 asset data with Excel file")
 
 
 ## Live Demo
@@ -96,6 +96,7 @@ Please watch the [Video](https://myshare.autodesk.com/:v:/g/personal/xiaodong_li
     - clientAssetId
     - category id
     - status id
+
 The recommendation is to reuse the skeleton in step 1. To create new assets leave the column __id__ empty. After importing, the new assets will be created, the old assets will be updated with new values. A notification will appears in top-right corner of client side. It indicates how may assets are imported succesfully. Go to BIM 360 UI to vefify.
 5.  Click **Delete** option and execute. Select one excel that contains assets data (at least ids). The recommendation is to reuse the skeleton in step 1. After deleting, go to BIM 360 UI to vefify.  A notification will appears in top-right corner of client side. It indicates how may assets are deleted succesfully. 
 
@@ -108,7 +109,7 @@ To deploy this application to Heroku, the **Callback URL** for Forge must use yo
 
 ## Limitation
 1. In excel, because one cell does not support multiple hyperlinks, the exported linked resources are only string with resources names. 
-2. 
+
  
 
 ## Tips & Tricks
