@@ -82,6 +82,11 @@ Windows (use **Node.js command line** from Start menu)
 
 OR, set enviroment variables of [launch.json](/.vscode/launch.json) for debugging.
 
+Define the socket endpoint same to your host at [this line](/public/js/socket_modules.js#L11), e.g.
+```
+socketio = io('http://localhost:3000');
+```
+
 ## Use Cases
 
 1. Open the browser: [http://localhost:3000](http://localhost:3000). 
