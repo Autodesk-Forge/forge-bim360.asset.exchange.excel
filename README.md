@@ -29,11 +29,9 @@ This sample is implemented based on Node.js version of [Learn Forge Tutorial](ht
 ![thumbnail](/help/main.png)  
 
 ## Demonstration
-[Demo Video](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0 "Display and exchange BIM 360 asset data with Excel file")
+https://bim360-asset-exchange-excel.herokuapp.com/
 
-
-## Live Demo
-[TBD]()
+Watch [this video](https://youtu.be/X2FCxfJi2g8) on how to play the demo. 
 
 
 # Web App Setup
