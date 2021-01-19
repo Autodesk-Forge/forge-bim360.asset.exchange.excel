@@ -28,7 +28,11 @@ This sample is implemented based on Node.js version of [Learn Forge Tutorial](ht
 ## Thumbnail
 ![thumbnail](/help/main.png)  
 
+
 ## Demonstration
+[![https://youtu.be/X2FCxfJi2g8](http://img.youtube.com/vi/X2FCxfJi2g8/0.jpg)](https://youtu.be/X2FCxfJi2g8 "Export / Import BIM360 Asset Sample")
+
+## Live Demo
 https://bim360-asset-exchange-excel.herokuapp.com/
 
 Watch [this video](https://youtu.be/X2FCxfJi2g8) on how to play the demo. 
