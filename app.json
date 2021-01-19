@@ -1,7 +1,7 @@
 {
-  "name": "forge-bim360.asset.exchange.csv",
+  "name": "forge-bim360.asset.exchange.excel",
   "description": "BIM 360 Asset API exchange sample",
-  "repository": "https://github.com/xiaiodongliang/forge-bim360.asset.exchange.csv",
+  "repository": "https://github.com/xiaodongliang/forge-bim360.asset.exchange.excel",
   "logo": "",
   "keywords": [
       "autodesk",
