@@ -57,7 +57,7 @@ Install [NodeJS](https://nodejs.org), version 8 or newer.
 
 Clone this project or download it (this `nodejs` branch only). It's recommended to install [GitHub desktop](https://desktop.github.com/). To clone it via command line, use the following (**Terminal** on MacOSX/Linux, **Git Shell** on Windows):
 
-    git clone https://github.com/xiaodongliang/forge-bim360.asset.exchange.excel
+    git clone https://github.com/autodesk-forge/forge-bim360.asset.exchange.excel
 
 Install the required packages using `npm install`.
 
@@ -111,7 +111,7 @@ The recommendation is to reuse the skeleton in step #1. To create new assets lea
 
 To deploy this application to Heroku, the **Callback URL** for Forge must use your `.herokuapp.com` address. After clicking on the button below, at the Heroku Create New App page, set your Client ID, Secret and Callback URL for Forge.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/xiaodongliang/forge-bim360.asset.exchange.excel)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/autodesk-forge/forge-bim360.asset.exchange.excel)
 
 
 ## Limitation
@@ -130,6 +130,7 @@ To deploy this application to Heroku, the **Callback URL** for Forge must use yo
  
 ## Further Reading
 **Document**
+
  
 **Tutorials**:
 - [View BIM 360 Models](http://learnforge.autodesk.io/#/tutorials/viewhubmodels)
