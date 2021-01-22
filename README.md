@@ -95,7 +95,7 @@ socketio = io('http://localhost:3000');
 
 1. Open the browser: [http://localhost:3000](http://localhost:3000). 
 
-Please watch the [Video](https://myshare.autodesk.com/:v:/g/personal/xiaodong_liang_autodesk_com/EcP_nIRcbSlNhjEteTbYq20BwuPdL9QxT3wHmw0yDnenEA?e=GJFZh0) for the detail setup and usage, or follow the steps.
+Please watch the [Video](https://youtu.be/X2FCxfJi2g8) for the detail setup and usage, or follow the steps.
 
 2. After user logging, select a project. The code will start extracting the first page of assets records (about 50 records), and display them in web view. Switch **Raw data** and **Human readable** to check __IDs__ data.
 3. Click **Export** option and excute to export all assets, categories, status, custom attributes definitions to excel. 
