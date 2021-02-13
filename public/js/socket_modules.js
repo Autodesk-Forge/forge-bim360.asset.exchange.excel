@@ -8,7 +8,8 @@ const SocketEnum = {
   DELETE_ASSETS_DONE: 'delete assets done'
 };
 
-socketio = io('http://localhost:3000');
+const HOST_URL =  window.location.host; 
+socketio = io(HOST_URL);
 socketio.on(SocketEnum.ASSET_TOPIC, async (d) => {
   const jsonData = JSON.parse(d) 
   const isRaw = $('input[name="dataTypeToDisplay"]:checked').val() === 'rawData' 
