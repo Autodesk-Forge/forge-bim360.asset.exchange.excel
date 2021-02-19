@@ -103,6 +103,7 @@ Please watch the [Video](https://youtu.be/X2FCxfJi2g8) for the detail setup and 
     - clientAssetId
     - category id
     - status id
+    
 The recommendation is to reuse the skeleton in step #1. To create new assets leave the column __id__ empty. After importing, the new assets will be created, the old assets will be updated with new values. A notification will appears in top-right corner of client side. It indicates how may assets are imported succesfully. Go to BIM 360 UI to vefify.
 
 5.  Click **Delete** option and execute. Select one excel that contains assets data (at least ids). The recommendation is to reuse the skeleton in step #1. After deleting, go to BIM 360 UI to vefify.  A notification will appears in top-right corner of client side. It indicates how may assets are deleted succesfully. 
