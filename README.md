@@ -1,3 +1,6 @@
+# DEPRECATED
+This repository has been deprecated and migrated to https://github.com/autodesk-platform-services/aps-assets-exchange-excel
+
 # forge-bim360.asset.exchange.excel
 
 [![Node.js](https://img.shields.io/badge/Node.js-12.19-blue.svg)](https://nodejs.org/)
